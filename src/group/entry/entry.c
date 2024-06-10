@@ -3,10 +3,9 @@
 bool render_entry_info(
         struct EntryPane* ep,
         struct Entry entry,
-        enum Panes active_pane) 
+        enum PaneTypes active_pane) 
 {
     WINDOW* win = ep->info_win;
-    werase(win);
 
     if (active_pane == EntryFields) {
         wattron(win, COLOR_PAIR(1));
@@ -39,17 +38,16 @@ bool render_entry_info(
 
 
 
-    wrefresh(win);
+    wnoutrefresh(win);
     return true;
 }
 
 bool render_entry_pane(
         struct EntryPane* ep,
-        enum Panes active_pane,
+        enum PaneTypes active_pane,
         struct Group* group) 
 {
     WINDOW* win = ep->win;
-    werase(win);
 
     if (active_pane == Entry) {
         wattron(win, COLOR_PAIR(1));
@@ -78,7 +76,7 @@ bool render_entry_pane(
         wattroff(win, COLOR_PAIR(1));
     }
 
-    wrefresh(win);
+    wnoutrefresh(win);
     return true;
 }
 

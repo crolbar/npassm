@@ -1,21 +1,29 @@
 #ifndef APP
 #define APP
 
+#include "dialogbox.h"
 #include "group/group.h"
 #include "group/entry/entry.h"
 
 #include <ncurses.h>
 
-enum Panes {
+enum PaneTypes {
     Group,
     Entry,
     EntryFields,
+    DialogBox,
+};
+
+struct Panes {
+    enum PaneTypes active;
+    enum PaneTypes prev_active;
 };
 
 struct App {
     int exit;
-    enum Panes active_pane;
 
+    struct Panes panes;
+    struct DialogBox dialogbox;
     struct GroupPane group_pane;
     struct EntryPane entry_pane;
 };
@@ -23,9 +31,10 @@ struct App {
 bool render_groups(struct App *app);
 bool render_entry_pane(
         struct EntryPane* ep,
-        enum Panes active_pane,
+        enum PaneTypes active_pane,
         struct Group* group);
 
 void init_windows(struct App* app);
+void init_dialogbox_windows(struct DialogBox* db);
 
 #endif

@@ -3,9 +3,8 @@
 
 bool render_groups(struct App *app) {
     WINDOW* win = app->group_pane.win;
-    werase(win);
 
-    if (app->active_pane == Group) {
+    if (app->panes.active == Group) {
         wattron(win, COLOR_PAIR(1));
     }
 
@@ -21,12 +20,10 @@ bool render_groups(struct App *app) {
             wattron(win, COLOR_PAIR(1));
 
             if (g.num_entries > 0) {
-                if (render_entry_pane(&app->entry_pane, app->active_pane, &g)) {}
+                if (render_entry_pane(&app->entry_pane, app->panes.active, &g)) {}
             } else {
-                werase(app->entry_pane.win);
-                wrefresh(app->entry_pane.win);
-                werase(app->entry_pane.info_win);
-                wrefresh(app->entry_pane.info_win);
+                werase(app->entry_pane.win); werase(app->entry_pane.info_win);
+                wnoutrefresh(app->entry_pane.win); wnoutrefresh(app->entry_pane.info_win);
             }
         }
 
@@ -41,7 +38,7 @@ bool render_groups(struct App *app) {
         wattroff(win, COLOR_PAIR(1));
     }
 
-    wrefresh(win);
+    wnoutrefresh(win);
     return true;
 }
 

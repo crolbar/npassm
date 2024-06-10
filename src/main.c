@@ -4,10 +4,17 @@
 
 #include "app.h"
 
+#include "dialogbox.c"
 #include "group/group.c"
 #include "group/entry/entry.c"
 #include "update.c"
 #include "ui.c"
+
+void init_dialogbox_windows(struct DialogBox* db) {
+    db->win = newwin(LINES * 0.25, COLS * 0.25, LINES * 0.37, COLS * 0.35);
+    db->input_box_border_win = newwin(3, (COLS * 0.25) - 4, (LINES * 0.37) + 4, (COLS * 0.35) + 2);
+    db->input_box_win = newwin(1, (COLS * 0.25) - 6, (LINES * 0.37) + 5, (COLS * 0.35) + 3);
+}
 
 void init_windows(struct App* app) {
     erase();
@@ -15,8 +22,9 @@ void init_windows(struct App* app) {
     app->group_pane.win = newwin(LINES, COLS * 0.15, 0, 0);
     app->entry_pane  = (struct EntryPane) {
         .win = newwin(LINES, COLS * 0.35, 0, COLS * 0.15),
-        .info_win = newwin(LINES, COLS * 0.50, 0, COLS * 0.50), 
+        .info_win = newwin(LINES, COLS * 0.49, 0, COLS * 0.50), 
     };
+    init_dialogbox_windows(&app->dialogbox);
 
     refresh();
 }
@@ -28,7 +36,6 @@ void init_entries(struct Group* group) {
         .email = "g@gmail.com",
         .password = "12345",
         .notes = "gmail notes aosntehu aosentu aosneuq",
-        
     };
     group->entries[1] = (struct Entry) {
         .title = "proton",
@@ -73,12 +80,17 @@ void init_groups(struct GroupPane* gp) {
 struct App init_app() {
     struct App app = {
         .exit = false,
-        .active_pane = Group,
+        .panes = {
+            .active = Group,
+        },
         .group_pane = (struct GroupPane) {
             .num_groups = 0,
             .groups = NULL,
             .sel = 0,
         },
+        .dialogbox = {
+            .title = "test"
+        }
     };
 
     init_groups(&app.group_pane);
@@ -91,20 +103,23 @@ struct App init_app() {
 int main() {
     initscr();
     cbreak();
+    raw();
     noecho();
     start_color();
     curs_set(0);
     keypad(stdscr, TRUE);
-    timeout(100);
+    timeout(200);
 
-    init_pair(1, COLOR_RED, COLOR_BLACK);
+    init_pair(1, 1, 0);
+    init_pair(2, 8, 0);
+    init_pair(3, 1, 5);
 
     struct App app = init_app();
 
-    while (!app.exit) {
-        draw(&app);
+    do {
         update(&app);
-    }
+        draw(&app);
+    } while (!app.exit);
 
     endwin();
     return 0;

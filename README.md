@@ -1,3 +1,4 @@
+# STILL WORK IN PROGRESS
 ## Something trying to be a TUI ncurses password manager.
 
 # Build
