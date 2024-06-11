@@ -7,8 +7,7 @@
 void handle_pane_focus_change(struct App* app, bool left) {
     if (!left) {
         if (
-                app->panes.active == Group &&
-                app->group_pane.groups[app->group_pane.sel].num_entries != 0
+                app->panes.active == Group
            ) 
         {
             app->panes.active = Entry;
@@ -16,7 +15,11 @@ void handle_pane_focus_change(struct App* app, bool left) {
             app->group_pane.win = newwin(LINES, COLS * 0.10, 0, 0);
             app->entry_pane.win = newwin(LINES, COLS * 0.40, 0, COLS * 0.10);
 
-        } else if (app->panes.active == Entry) 
+        } else if 
+            (
+                app->panes.active == Entry &&
+                app->group_pane.groups[app->group_pane.sel].num_entries != 0
+            ) 
         {
             app->panes.active = EntryFields;
         }
@@ -36,7 +39,47 @@ void handle_pane_focus_change(struct App* app, bool left) {
 
 }
 
-void update(struct App *app) {
+char** get_focused_item(struct App* app) {
+    char** str;
+
+    struct Group* g = &app->group_pane.groups[app->group_pane.sel];
+
+    struct Entry* e;
+    if (g->num_entries > 0) {
+         e = &g->entries[g->sel_entry];
+    }
+
+    switch (app->panes.active) {
+        case Group:
+            str = &g->name;
+            break;
+        case Entry:
+            str = &e->title;
+            break;
+        case EntryFields:
+            switch (app->entry_pane.sel_field) {
+                case 0:
+                    str = &e->username;
+                    break;
+                case 1:
+                    str = &e->email;
+                    break;
+                case 2:
+                    str = &e->password;
+                    break;
+                case 3:
+                    str = &e->notes;
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return str;
+}
+
+void update(struct App* app) {
     int c = getch();
 
     if (app->panes.active != DialogBox) {
@@ -52,6 +95,11 @@ void update(struct App *app) {
                     entry_field_sel_prev(&app->entry_pane.sel_field);
                 }
 
+                werase(app->entry_pane.info_win);
+                werase(app->entry_pane.win);
+                wnoutrefresh(app->entry_pane.info_win);
+                wnoutrefresh(app->entry_pane.win);
+
                 break;
 
             case KEY_DOWN:
@@ -63,6 +111,11 @@ void update(struct App *app) {
                 } else if (app->panes.active == EntryFields) {
                     entry_field_sel_next(&app->entry_pane);
                 }
+                
+                werase(app->entry_pane.info_win);
+                werase(app->entry_pane.win);
+                wnoutrefresh(app->entry_pane.info_win);
+                wnoutrefresh(app->entry_pane.win);
 
                 break;
 
@@ -80,10 +133,25 @@ void update(struct App *app) {
                 app->exit = true;
                 break;
 
+            case 'd':
+                if (app->panes.active == Entry) {
+                    entry_remove(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
+                } else if (app->panes.active == Group) {
+                    group_remove(&app->group_pane);
+                }
+                break;
+
+            case 'a':
+                if (app->panes.active == Entry) {
+                    entry_add(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
+                } else if (app->panes.active == Group) {
+                    group_add(&app->group_pane);
+                }
+
             case 'r':
                 start_editing(&app->panes,
                         &app->dialogbox,
-                        &app->group_pane.groups[app->group_pane.sel].name);
+                        get_focused_item(app));
                 break;
         }
     } else {
@@ -98,7 +166,7 @@ void update(struct App *app) {
 
         switch (c) {
             case 19: /*ctrl+s*/ case 24: /*ctrl+x*/ case 27: /*esc*/
-                stop_editing(&app->panes, &app->dialogbox, app->group_pane.win, c == 19);
+                stop_editing(app, c == 19);
                 break;
 
             case 8:

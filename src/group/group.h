@@ -21,5 +21,7 @@ struct Group {
 
 void group_select_prev(int* group_sel);
 void group_select_next(struct GroupPane* gp);
+void group_add(struct GroupPane* gp);
+void group_remove(struct GroupPane* gp);
 
 #endif

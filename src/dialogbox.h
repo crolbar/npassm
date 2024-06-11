@@ -20,7 +20,7 @@ struct Panes;
 
 bool render_bialogbox(struct DialogBox* db);
 void start_editing(struct Panes* panes, struct DialogBox* db, char** origin);
-void stop_editing(struct Panes* panes, struct DialogBox* db, WINDOW* gw, bool save);
+void stop_editing(struct App* app, bool save);
 void handle_keypress(struct DialogBox* db, char c);
 void mod_str_pop(struct DialogBox* db, bool word);
 

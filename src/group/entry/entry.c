@@ -1,4 +1,5 @@
 #include "../../app.h"
+#include <stdlib.h>
 
 bool render_entry_info(
         struct EntryPane* ep,
@@ -79,6 +80,50 @@ bool render_entry_pane(
     wnoutrefresh(win);
     return true;
 }
+
+void entry_remove(struct EntryPane* ep, struct Group* g) {
+    if (g->num_entries) {
+        for (int i = g->sel_entry; i < g->num_entries; i++) {
+            g->entries[i] = g->entries[i + 1];
+        }
+
+        g->entries = realloc(g->entries, (g->num_entries - 1) * sizeof(struct Entry));
+
+        g->num_entries--;
+
+        if (g->sel_entry >= g->num_entries) {
+            g->sel_entry = g->num_entries - 1;
+        }
+
+        werase(ep->info_win);
+        werase(ep->win);
+        wnoutrefresh(ep->info_win);
+        wnoutrefresh(ep->win);
+    }
+}
+
+void entry_add(struct EntryPane* ep, struct Group* g) {
+    g->sel_entry = g->num_entries;
+    g->entries = realloc(g->entries, (g->num_entries + 1) * sizeof(struct Entry));
+
+    g->entries[g->num_entries] = (struct Entry){
+        .email = "Email",
+        .password = "Pass",
+        .notes = "Noting",
+        .username = "Name",
+        .title = malloc(20 * sizeof(char)),
+    };
+
+    sprintf(g->entries[g->num_entries].title, "New Entry %d", g->num_entries);
+
+    g->num_entries++;
+
+    werase(ep->info_win);
+    werase(ep->win);
+    wnoutrefresh(ep->info_win);
+    wnoutrefresh(ep->win);
+}
+
 
 void entry_field_sel_next(struct EntryPane* ep) {
     if (ep->sel_field < 3) ep->sel_field++;

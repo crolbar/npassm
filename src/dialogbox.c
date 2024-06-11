@@ -1,4 +1,5 @@
 #include "app.h"
+#include "group/entry/entry.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
@@ -68,6 +69,8 @@ void mod_str_pop(struct DialogBox* db, bool word) {
     int l = strlen(db->mod_str);
 
     if (db->mod_str[l - 1] == '\n') {
+        werase(db->win);
+        wnoutrefresh(db->win);
         size_down_db_windows(db);
     }
 
@@ -197,24 +200,33 @@ void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
     }
 }
 
-void stop_editing(struct Panes* panes, struct DialogBox* db, WINDOW* gw, bool save) {
-    panes->active = panes->prev_active;
+void stop_editing(struct App* app, bool save) {
+    app->panes.active = app->panes.prev_active;
 
     if (save) {
-        int l = strlen(db->mod_str);
+        int l = strlen(app->dialogbox.mod_str);
 
-        *db->origin_str = (char*)malloc((l + 1) * sizeof(char));
+        *app->dialogbox.origin_str = (char*)malloc(++l * sizeof(char));
 
-        strcpy(*db->origin_str, db->mod_str);
-        werase(gw);
-        wnoutrefresh(gw);
+        strcpy(*app->dialogbox.origin_str, app->dialogbox.mod_str);
+
+        WINDOW* wins[] = {
+            app->group_pane.win,
+            app->entry_pane.win,
+            app->entry_pane.info_win
+        };
+
+        for (int i = 0; i < 3; i++) {
+            werase(wins[i]);
+            wrefresh(wins[i]);
+        }
     }
 
-    free(db->mod_str);
-    db->mod_str = NULL;
-    db->origin_str = NULL;
+    free(app->dialogbox.mod_str);
+    app->dialogbox.mod_str = NULL;
+    app->dialogbox.origin_str = NULL;
 
-    werase(db->win);
-    wnoutrefresh(db->win);
+    werase(app->dialogbox.win);
+    wnoutrefresh(app->dialogbox.win);
     curs_set(0);
 }
