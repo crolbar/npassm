@@ -12,7 +12,7 @@ bool render_entry_info(
         wattron(win, COLOR_PAIR(1));
     }
     box(win, 0, 0);
-    mvwprintw(win, 0, 1, "%s", entry.title);
+    mvwprintw(win, 0, 1, "%s", entry.name);
     wattroff(win, COLOR_PAIR(1));
 
 
@@ -71,7 +71,7 @@ bool render_entry_pane(
             win,
             2 + i * 2,
             2,
-            "%s", e->title
+            "%s", e->name
         );
 
         wattroff(win, COLOR_PAIR(1));
@@ -107,14 +107,14 @@ void entry_add(struct EntryPane* ep, struct Group* g) {
     g->entries = realloc(g->entries, (g->num_entries + 1) * sizeof(struct Entry));
 
     g->entries[g->num_entries] = (struct Entry){
-        .email = "Email",
-        .password = "Pass",
-        .notes = "Noting",
-        .username = "Name",
-        .title = malloc(20 * sizeof(char)),
+        .email = "",
+        .password = "",
+        .notes = "",
+        .username = "",
+        .name = malloc(20 * sizeof(char)),
     };
 
-    sprintf(g->entries[g->num_entries].title, "New Entry %d", g->num_entries);
+    sprintf(g->entries[g->num_entries].name, "New Entry %d", g->num_entries);
 
     g->num_entries++;
 

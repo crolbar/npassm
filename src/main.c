@@ -31,21 +31,21 @@ void init_windows(struct App* app) {
 
 void init_entries(struct Group* group) {
     group->entries[0] = (struct Entry) {
-        .title = "gmail",
+        .name = "gmail",
         .username = "g username",
         .email = "g@gmail.com",
         .password = "12345",
         .notes = "gmail notes aosntehu aosentu aosneuq",
     };
     group->entries[1] = (struct Entry) {
-        .title = "proton",
+        .name = "proton",
         .username = "p username",
         .email = "p@proton.me",
         .password = "12345",
         .notes = "proton notes aosntehu aosentu aosneuq",
     };
     group->entries[2] = (struct Entry) {
-        .title = "discord",
+        .name = "discord",
         .username = "d username",
         .email = "d@gmail.com",
         .password = "12345",

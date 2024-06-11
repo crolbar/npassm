@@ -12,7 +12,7 @@ struct EntryPane {
 };
 
 struct Entry {
-    char* title;
+    char* name;
     char* username;
     char* email;
     char* password;

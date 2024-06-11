@@ -7,7 +7,8 @@
 void handle_pane_focus_change(struct App* app, bool left) {
     if (!left) {
         if (
-                app->panes.active == Group
+                app->panes.active == Group &&
+                app->group_pane.num_groups
            ) 
         {
             app->panes.active = Entry;
@@ -40,42 +41,44 @@ void handle_pane_focus_change(struct App* app, bool left) {
 }
 
 char** get_focused_item(struct App* app) {
-    char** str;
+    char** str = NULL;
 
-    struct Group* g = &app->group_pane.groups[app->group_pane.sel];
+    if (app->group_pane.num_groups) {
+        struct Group* g = &app->group_pane.groups[app->group_pane.sel];
+        struct Entry* e = NULL;
 
-    struct Entry* e;
-    if (g->num_entries > 0) {
-         e = &g->entries[g->sel_entry];
+        if (g->num_entries) {
+             e = &g->entries[g->sel_entry];
+        }
+
+        switch (app->panes.active) {
+            case Group:
+                str = &g->name;
+                break;
+            case Entry:
+                if (e)
+                    str = &e->name;
+                break;
+            case EntryFields:
+                switch (app->entry_pane.sel_field) {
+                    case 0:
+                        str = &e->username;
+                        break;
+                    case 1:
+                        str = &e->email;
+                        break;
+                    case 2:
+                        str = &e->password;
+                        break;
+                    case 3:
+                        str = &e->notes;
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
     }
-
-    switch (app->panes.active) {
-        case Group:
-            str = &g->name;
-            break;
-        case Entry:
-            str = &e->title;
-            break;
-        case EntryFields:
-            switch (app->entry_pane.sel_field) {
-                case 0:
-                    str = &e->username;
-                    break;
-                case 1:
-                    str = &e->email;
-                    break;
-                case 2:
-                    str = &e->password;
-                    break;
-                case 3:
-                    str = &e->notes;
-                    break;
-            }
-            break;
-        default:
-            break;
-    }
-
     return str;
 }
 
@@ -138,6 +141,9 @@ void update(struct App* app) {
                     entry_remove(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
                 } else if (app->panes.active == Group) {
                     group_remove(&app->group_pane);
+
+                    werase(app->entry_pane.win);
+                    wnoutrefresh(app->entry_pane.win);
                 }
                 break;
 
@@ -148,11 +154,13 @@ void update(struct App* app) {
                     group_add(&app->group_pane);
                 }
 
-            case 'r':
-                start_editing(&app->panes,
-                        &app->dialogbox,
-                        get_focused_item(app));
-                break;
+            case 'r': 
+                {
+                    char** str = get_focused_item(app);
+
+                    if (str)
+                        start_editing(&app->panes, &app->dialogbox, str);
+                } break;
         }
     } else {
         if (strstr(getenv("TERM"), "xterm")) {
