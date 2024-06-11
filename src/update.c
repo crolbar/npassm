@@ -184,8 +184,18 @@ void update(struct App* app) {
 
             //me no likey tab
             case 9: break;
-            
-            default:
+
+            case 10:
+                if (
+                        app->panes.prev_active != EntryFields ||
+                        app->entry_pane.sel_field != 3
+                   )
+                {
+                    stop_editing(app, true);
+                    break;
+                }
+
+            default: 
                 if (c != -1) {
                     handle_keypress(&app->dialogbox, c);
                 }
