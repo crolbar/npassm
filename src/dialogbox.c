@@ -201,6 +201,14 @@ void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
 }
 
 void stop_editing(struct App* app, bool save) {
+    if (
+            !strlen(app->dialogbox.mod_str) &&
+            app->panes.prev_active != EntryFields
+       )
+    {
+        return;
+    }
+
     app->panes.active = app->panes.prev_active;
 
     if (save) {
