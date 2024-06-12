@@ -82,6 +82,12 @@ char** get_focused_item(struct App* app) {
     return str;
 }
 
+void copy(const char *text) {
+    FILE *fp = popen("xclip -selection clipboard", "w");
+    fprintf(fp, "%s", text);
+    pclose(fp);
+}
+
 void update(struct App* app) {
     int c = getch();
 
@@ -145,6 +151,10 @@ void update(struct App* app) {
                     werase(app->entry_pane.win);
                     wnoutrefresh(app->entry_pane.win);
                 }
+                break;
+
+            case 'c':
+                copy(*get_focused_item(app));
                 break;
 
             case 'a':
