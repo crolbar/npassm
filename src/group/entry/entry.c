@@ -18,23 +18,23 @@ bool render_entry_info(
 
     for (int i = 0; i < 4; i++) {
         if (i == ep->sel_field) {
-            wattron(win, COLOR_PAIR(1));
+            wattron(ep->field_windows[i], COLOR_PAIR(1));
         }
         switch (i) {
             case 0:
-                mvwprintw(win, 2, 2, "Username: %s", entry.username);
+                mvwprintw(ep->field_windows[i], 0, 0, "Username: %s", entry.username);
                 break;
             case 1:
-                mvwprintw(win, 4, 2, "Email: %s", entry.email);
+                mvwprintw(ep->field_windows[i], 0, 0, "Email: %s", entry.email);
                 break;
             case 2:
-                mvwprintw(win, 6, 2, "Password: %s", entry.password);
+                mvwprintw(ep->field_windows[i], 0, 0, "Password: %s", entry.password);
                 break;
             case 3:
-                mvwprintw(win, 8, 2, "Notes: %s", entry.notes);
+                mvwprintw(ep->field_windows[i], 0, 0, "Notes: %s", entry.notes);
                 break;
         }
-        wattroff(win, COLOR_PAIR(1));
+        wattroff(ep->field_windows[i], COLOR_PAIR(1));
     }
 
 

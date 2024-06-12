@@ -8,6 +8,7 @@ struct App;
 struct EntryPane {
     WINDOW* win;
     WINDOW* info_win;
+    WINDOW* field_windows[4];
     int sel_field;
 };
 
