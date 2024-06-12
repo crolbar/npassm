@@ -153,6 +153,13 @@ void update(struct App* app) {
                 }
                 break;
 
+            case 'p':
+                app->entry_pane.pass_hiden = !app->entry_pane.pass_hiden;
+
+                werase(app->entry_pane.info_win);
+                wnoutrefresh(app->entry_pane.info_win);
+                break;
+
             case 'c':
                 copy(*get_focused_item(app));
                 break;

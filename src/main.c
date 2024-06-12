@@ -53,10 +53,8 @@ void init_windows(struct App* app) {
 
     app->group_pane.win = newwin(GROUP_WIN_HEIGHT, GROUP_WIN_WIDTH, GROUP_WIN_START_Y, GROUP_WIN_START_X);
 
-    app->entry_pane = (struct EntryPane) {
-        .win = newwin(ENTRY_WIN_HEIGHT, ENTRY_WIN_WIDTH, ENTRY_WIN_START_Y, ENTRY_WIN_START_X),
-        .info_win = newwin(INFO_WIN_HEIGHT, INFO_WIN_WIDTH, INFO_WIN_START_Y, INFO_WIN_START_X), 
-    };
+    app->entry_pane.win = newwin(ENTRY_WIN_HEIGHT, ENTRY_WIN_WIDTH, ENTRY_WIN_START_Y, ENTRY_WIN_START_X);
+    app->entry_pane.info_win = newwin(INFO_WIN_HEIGHT, INFO_WIN_WIDTH, INFO_WIN_START_Y, INFO_WIN_START_X);
 
     for (int i = 0; i < 4; i++) {
         app->entry_pane.field_windows[i] = derwin(
@@ -132,8 +130,12 @@ struct App init_app() {
             .groups = NULL,
             .sel = 0,
         },
+        .entry_pane = {
+            .pass_hiden = true,
+        },
         .dialogbox = {
-            .title = "test"
+            .title = "test",
+            .risized = false,
         }
     };
 

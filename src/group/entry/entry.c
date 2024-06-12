@@ -1,5 +1,6 @@
 #include "../../app.h"
 #include <stdlib.h>
+#include <string.h>
 
 bool render_entry_info(
         struct EntryPane* ep,
@@ -28,7 +29,8 @@ bool render_entry_info(
                 mvwprintw(ep->field_windows[i], 0, 0, "Email: %s", entry.email);
                 break;
             case 2:
-                mvwprintw(ep->field_windows[i], 0, 0, "Password: %s", entry.password);
+                mvwprintw(ep->field_windows[i], 0, 0, "Password: %s",
+                        (ep->pass_hiden && strlen(entry.password)) ? "***********" : entry.password);
                 break;
             case 3:
                 mvwprintw(ep->field_windows[i], 0, 0, "Notes: %s", entry.notes);

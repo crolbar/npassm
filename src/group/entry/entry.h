@@ -10,6 +10,7 @@ struct EntryPane {
     WINDOW* info_win;
     WINDOW* field_windows[4];
     int sel_field;
+    bool pass_hiden;
 };
 
 struct Entry {
