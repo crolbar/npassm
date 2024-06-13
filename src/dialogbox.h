@@ -23,5 +23,6 @@ void start_editing(struct Panes* panes, struct DialogBox* db, char** origin);
 void stop_editing(struct App* app, bool save);
 void handle_keypress(struct DialogBox* db, char c);
 void mod_str_pop(struct DialogBox* db, bool word);
+void set_dialogbox_title(struct App* app, bool renaming);
 
 #endif

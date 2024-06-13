@@ -11,7 +11,6 @@
 #include "ui.c"
 
 void init_dialogbox_windows(struct DialogBox* db) {
-
     const int DIALOGBOX_WIN_HEIGHT = LINES * 0.25;
     const int DIALOGBOX_WIN_WIDTH = COLS * 0.25;
     const int DIALOGBOX_WIN_START_Y = LINES * 0.37;
@@ -27,9 +26,24 @@ void init_dialogbox_windows(struct DialogBox* db) {
     const int INPUT_BOX_WIN_START_Y = (LINES * 0.37) + 5;
     const int INPUT_BOX_WIN_START_X = (COLS * 0.35) + 3;
 
-    db->win = newwin(DIALOGBOX_WIN_HEIGHT, DIALOGBOX_WIN_WIDTH, DIALOGBOX_WIN_START_Y, DIALOGBOX_WIN_START_X);
-    db->input_box_border_win = newwin(INPUT_BOX_WIN_HEIGHT, INPUT_BOX_WIN_WIDTH, INPUT_BOX_WIN_START_Y, INPUT_BOX_WIN_START_X);
-    db->input_box_win = newwin(INPUT_BOX_WIN_HEIGHT, INPUT_BOX_WIN_WIDTH, INPUT_BOX_WIN_START_Y, INPUT_BOX_WIN_START_X);
+    db->win = newwin(
+            DIALOGBOX_WIN_HEIGHT,
+            DIALOGBOX_WIN_WIDTH,
+            DIALOGBOX_WIN_START_Y,
+            DIALOGBOX_WIN_START_X
+    );
+    db->input_box_border_win = newwin(
+            INPUT_BOX_BORDER_WIN_HEIGHT,
+            INPUT_BOX_BORDER_WIN_WIDTH,
+            INPUT_BOX_BORDER_WIN_START_Y,
+            INPUT_BOX_BORDER_WIN_START_X
+    );
+    db->input_box_win = newwin(
+            INPUT_BOX_WIN_HEIGHT,
+            INPUT_BOX_WIN_WIDTH,
+            INPUT_BOX_WIN_START_Y,
+            INPUT_BOX_WIN_START_X
+    );
 }
 
 void init_windows(struct App* app) {
@@ -51,10 +65,24 @@ void init_windows(struct App* app) {
     const int INFO_WIN_START_Y = 0;
     const int INFO_WIN_START_X = COLS * 0.50;
 
-    app->group_pane.win = newwin(GROUP_WIN_HEIGHT, GROUP_WIN_WIDTH, GROUP_WIN_START_Y, GROUP_WIN_START_X);
-
-    app->entry_pane.win = newwin(ENTRY_WIN_HEIGHT, ENTRY_WIN_WIDTH, ENTRY_WIN_START_Y, ENTRY_WIN_START_X);
-    app->entry_pane.info_win = newwin(INFO_WIN_HEIGHT, INFO_WIN_WIDTH, INFO_WIN_START_Y, INFO_WIN_START_X);
+    app->group_pane.win = newwin(
+            GROUP_WIN_HEIGHT,
+            GROUP_WIN_WIDTH,
+            GROUP_WIN_START_Y,
+            GROUP_WIN_START_X
+    );
+    app->entry_pane.win = newwin(
+            ENTRY_WIN_HEIGHT,
+            ENTRY_WIN_WIDTH,
+            ENTRY_WIN_START_Y,
+            ENTRY_WIN_START_X
+    );
+    app->entry_pane.info_win = newwin(
+            INFO_WIN_HEIGHT,
+            INFO_WIN_WIDTH,
+            INFO_WIN_START_Y,
+            INFO_WIN_START_X
+    );
 
     for (int i = 0; i < 4; i++) {
         app->entry_pane.field_windows[i] = derwin(
@@ -134,7 +162,7 @@ struct App init_app() {
             .pass_hiden = true,
         },
         .dialogbox = {
-            .title = "test",
+            .title = NULL,
             .risized = false,
         }
     };

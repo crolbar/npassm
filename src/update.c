@@ -175,8 +175,10 @@ void update(struct App* app) {
                 {
                     char** str = get_focused_item(app);
 
-                    if (str)
+                    if (str) {
+                        set_dialogbox_title(app, c == 'r');
                         start_editing(&app->panes, &app->dialogbox, str);
+                    }
                 } break;
         }
     } else {

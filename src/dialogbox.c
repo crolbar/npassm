@@ -149,6 +149,70 @@ void handle_keypress(struct DialogBox* db, char c) {
     }
 }
 
+void set_dialogbox_title(struct App* app, bool renaming) {
+    char* action;
+    char* sub;
+
+    struct Group g = app->group_pane.groups[app->group_pane.sel];
+    struct Entry e = g.entries[g.sel_entry];
+    
+    switch (app->panes.active) {
+        case Group: 
+            {
+                if (renaming) {
+                    action = "Rename Group";
+                } else {
+                    action = "Set name for";
+                };
+
+                sub = g.name;
+            } break;
+        case Entry:
+            if (renaming) {
+                action = "Rename Entry";
+            } else {
+                action = "Set name for";
+            }
+
+            sub = e.name;
+
+            break;
+        case EntryFields:
+            switch (app->entry_pane.sel_field) {
+                case 0:
+                    action = "Set username for";
+                    break;
+                case 1:
+                    action = "Set email for";
+                    break;
+                case 2:
+                    action = "Set password for";
+                    break;
+                case 3:
+                    action = "Set notes for";
+                    break;
+            }
+
+            sub = e.name;
+
+            break;
+        default: break;
+    }
+
+    char tmp[300];
+    sprintf(tmp, "%s %s", action, sub);
+
+    int window_width = getmaxx(app->dialogbox.win);
+    if (strlen(tmp) > window_width - 2) {
+        tmp[window_width - 7] = '.';
+        tmp[window_width - 6] = '.';
+        tmp[window_width - 5] = '\0';
+    }
+
+    app->dialogbox.title = (char*)malloc((strlen(tmp) + 1) * sizeof(char));
+    strcpy(app->dialogbox.title, tmp);
+}
+
 void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
     panes->prev_active = panes->active;
     panes->active = DialogBox;
