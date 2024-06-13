@@ -98,6 +98,17 @@ void mod_str_pop(struct DialogBox* db, bool word) {
     werase(db->win);
     wnoutrefresh(db->win);
 }
+int get_curr_line_len(char* str, int w) {
+    if (strstr(str, "\n")) {
+        for (int i = strlen(str); i >= 0; i--) {
+            if (str[i] == '\n') {
+                return (strlen(str) - i) % w;
+            }
+        }
+    }
+
+    return strlen(str) % w;
+}
 
 void handle_keypress(struct DialogBox* db, char c) {
     int l = strlen(db->mod_str);
@@ -115,23 +126,16 @@ void handle_keypress(struct DialogBox* db, char c) {
     werase(db->win);
     wnoutrefresh(db->win);
 
-    { // increase window height if we reach the end of the line of we input a new line
-        int h, w;
-        getmaxyx(db->input_box_win, h, w);
+    { // increase window height if we reach the end of the line or we input a new line
+        if (
+            !get_curr_line_len(db->mod_str,
+                    getmaxx(db->input_box_win))
+            || c == '\n'
+           ) 
+        {
+            int h, w;
+            getmaxyx(db->input_box_win, h, w);
 
-        int curr_line_len;
-        if (strstr(db->mod_str, "\n")) {
-            for (int i = strlen(db->mod_str); i >= 0; i--) {
-                if (db->mod_str[i] == '\n') {
-                    curr_line_len = (strlen(db->mod_str) - i) % w;
-                    break;
-                }
-            }
-        } else {
-            curr_line_len = strlen(db->mod_str) % w;
-        }
-
-        if (!curr_line_len || c == '\n') {
             if (!db->risized) db->risized = true;
 
             wresize(db->input_box_win, ++h, w);

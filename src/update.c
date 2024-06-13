@@ -214,6 +214,18 @@ void update(struct App* app) {
 
             default: 
                 if (c != -1) {
+                    if (
+                            (
+                             app->panes.prev_active == Group &&
+                             strlen(app->dialogbox.mod_str) == 11
+                            ) ||
+                            (
+                             app->panes.prev_active == Entry &&
+                             strlen(app->dialogbox.mod_str) == 32
+                            )
+                       ) 
+                    { break; }
+
                     handle_keypress(&app->dialogbox, c);
                 }
         }
