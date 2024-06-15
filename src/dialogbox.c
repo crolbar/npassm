@@ -154,7 +154,10 @@ void set_dialogbox_title(struct App* app, bool renaming) {
     char* sub;
 
     struct Group g = app->group_pane.groups[app->group_pane.sel];
-    struct Entry e = g.entries[g.sel_entry];
+    struct Entry e;
+    if (g.num_entries) {
+        e = g.entries[g.sel_entry];
+    }
     
     switch (app->panes.active) {
         case Group: 
@@ -178,7 +181,7 @@ void set_dialogbox_title(struct App* app, bool renaming) {
 
             break;
         case EntryFields:
-            switch (app->entry_pane.sel_field) {
+            switch (e.sel_field) {
                 case 0:
                     action = "Set username for";
                     break;

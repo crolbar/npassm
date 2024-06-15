@@ -18,7 +18,7 @@ bool render_entry_info(
 
 
     for (int i = 0; i < 4; i++) {
-        if (i == ep->sel_field) {
+        if (i == entry.sel_field) {
             wattron(ep->field_windows[i], COLOR_PAIR(1));
         }
         switch (i) {
@@ -127,8 +127,8 @@ void entry_add(struct EntryPane* ep, struct Group* g) {
 }
 
 
-void entry_field_sel_next(struct EntryPane* ep) {
-    if (ep->sel_field < 3) ep->sel_field++;
+void entry_field_sel_next(int* sel_field) {
+    if (*sel_field < 3) *sel_field += 1;
 }
 
 void entry_field_sel_prev(int* sel_field) {

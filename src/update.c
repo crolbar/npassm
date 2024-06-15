@@ -60,7 +60,7 @@ char** get_focused_item(struct App* app) {
                     str = &e->name;
                 break;
             case EntryFields:
-                switch (app->entry_pane.sel_field) {
+                switch (e->sel_field) {
                     case 0:
                         str = &e->username;
                         break;
@@ -101,7 +101,8 @@ void update(struct App* app) {
                 } else if (app->panes.active == Entry) {
                     entry_sel_prev(&app->group_pane.groups[app->group_pane.sel].sel_entry);
                 } else if (app->panes.active == EntryFields) {
-                    entry_field_sel_prev(&app->entry_pane.sel_field);
+                    struct Group* g = &app->group_pane.groups[app->group_pane.sel];
+                    entry_field_sel_prev(&g->entries[g->sel_entry].sel_field);
                 }
 
                 werase(app->entry_pane.info_win);
@@ -118,7 +119,8 @@ void update(struct App* app) {
                 } else if (app->panes.active == Entry) {
                     entry_sel_next(&app->group_pane.groups[app->group_pane.sel]);
                 } else if (app->panes.active == EntryFields) {
-                    entry_field_sel_next(&app->entry_pane);
+                    struct Group* g = &app->group_pane.groups[app->group_pane.sel];
+                    entry_field_sel_next(&g->entries[g->sel_entry].sel_field);
                 }
                 
                 werase(app->entry_pane.info_win);
@@ -205,13 +207,16 @@ void update(struct App* app) {
             case 9: break;
 
             case 10:
-                if (
-                        app->panes.prev_active != EntryFields ||
-                        app->entry_pane.sel_field != 3
-                   )
                 {
-                    stop_editing(app, true);
-                    break;
+                    struct Group g = app->group_pane.groups[app->group_pane.sel];
+                    if (
+                            app->panes.prev_active != EntryFields ||
+                            g.entries[g.sel_entry].sel_field != 3
+                       )
+                    {
+                        stop_editing(app, true);
+                        break;
+                    }
                 }
 
             default: 
