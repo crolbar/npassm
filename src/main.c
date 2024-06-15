@@ -9,6 +9,7 @@
 #include "group/entry/entry.c"
 #include "update.c"
 #include "ui.c"
+#include "npassdb.c"
 
 void init_dialogbox_windows(struct DialogBox* db) {
     const int DIALOGBOX_WIN_HEIGHT = LINES * 0.25;
@@ -150,6 +151,7 @@ void init_groups(struct GroupPane* gp) {
 struct App init_app() {
     struct App app = {
         .exit = false,
+        .dbname = "greg",
         .panes = {
             .active = Group,
         },

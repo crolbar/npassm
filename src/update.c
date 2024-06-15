@@ -166,6 +166,10 @@ void update(struct App* app) {
                 copy(*get_focused_item(app));
                 break;
 
+            case 's':
+                save_db(app, "./t/db.npassdb");
+                break;
+
             case 'a':
                 if (app->panes.active == Entry) {
                     entry_add(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);

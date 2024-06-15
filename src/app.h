@@ -21,6 +21,7 @@ struct Panes {
 
 struct App {
     int exit;
+    char* dbname;
 
     struct Panes panes;
     struct DialogBox dialogbox;
@@ -36,5 +37,7 @@ bool render_entry_pane(
 
 void init_windows(struct App* app);
 void init_dialogbox_windows(struct DialogBox* db);
+
+void save_db(struct App* app, char* path);
 
 #endif
