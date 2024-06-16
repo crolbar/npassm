@@ -83,9 +83,15 @@ char** get_focused_item(struct App* app) {
 }
 
 void copy(const char *text) {
-    FILE *fp = popen("xclip -selection clipboard", "w");
-    fprintf(fp, "%s", text);
-    pclose(fp);
+    FILE *p;
+    if (getenv("WAYLAND_DISPLAY")) {
+        p = popen("wl-copy", "w");
+    } else {
+        p = popen("xclip -selection clipboard", "w");
+    }
+
+    fprintf(p, "%s", text);
+    pclose(p);
 }
 
 void update(struct App* app) {
