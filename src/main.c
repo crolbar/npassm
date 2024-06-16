@@ -1,5 +1,4 @@
 #include <ncurses.h>
-#include <stdlib.h>
 #include <stdbool.h>
 
 #include "app.h"
@@ -100,82 +99,6 @@ void init_windows(struct App* app) {
     refresh();
 }
 
-void init_entries(struct Group* group) {
-    group->entries[0] = (struct Entry) {
-        .name = "gmail",
-        .username = "g username",
-        .email = "g@gmail.com",
-        .password = "12345",
-        .notes = "gmail notes aosntehu aosentu aosneuq",
-    };
-    group->entries[1] = (struct Entry) {
-        .name = "proton",
-        .username = "p username",
-        .email = "p@proton.me",
-        .password = "12345",
-        .notes = "proton notes aosntehu aosentu aosneuq",
-    };
-    group->entries[2] = (struct Entry) {
-        .name = "discord",
-        .username = "d username",
-        .email = "d@gmail.com",
-        .password = "12345",
-        .notes = "discord notes aosntehu aosentu aosneuq",
-    };
-}
-
-void init_groups(struct GroupPane* gp) {
-    gp->num_groups = 4;
-    gp->groups = (struct Group*)malloc(4 * sizeof(struct Group));
-
-    gp->groups[0] = (struct Group) {
-        .name = "first",
-        .sel_entry = 0,
-        .num_entries = 3,
-        .entries = (struct Entry*)malloc(3 * sizeof(struct Entry))
-    };
-    init_entries(&gp->groups[0]);
-
-    gp->groups[1] = (struct Group){ .name = "sec" };
-    gp->groups[2] = (struct Group) {
-        .name = "third",
-        .sel_entry = 0,
-        .num_entries = 3,
-        .entries = (struct Entry*)malloc(3 * sizeof(struct Entry))
-    };
-    init_entries(&gp->groups[2]);
-
-    gp->groups[3] = (struct Group){ .name = "fourth" };
-}
-
-struct App init_app() {
-    struct App app = {
-        .exit = false,
-        .dbname = "greg",
-        .panes = {
-            .active = Group,
-        },
-        .group_pane = (struct GroupPane) {
-            .num_groups = 0,
-            .groups = NULL,
-            .sel = 0,
-        },
-        .entry_pane = {
-            .pass_hiden = true,
-        },
-        .dialogbox = {
-            .title = NULL,
-            .risized = false,
-        }
-    };
-
-    init_groups(&app.group_pane);
-    init_windows(&app);
-
-    return app;
-}
-
-
 int main() {
     initscr();
     cbreak();
@@ -190,7 +113,7 @@ int main() {
     init_pair(2, 8, 0);
     init_pair(3, 1, 5);
 
-    struct App app = init_app();
+    struct App app = open_db("./t/db.npassdb");
 
     do {
         update(&app);

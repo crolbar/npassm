@@ -38,6 +38,7 @@ bool render_entry_pane(
 void init_windows(struct App* app);
 void init_dialogbox_windows(struct DialogBox* db);
 
-void save_db(struct App* app, char* path);
+void save_db(const struct App* app, char* path);
+struct App open_db(char* path);
 
 #endif
