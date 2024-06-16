@@ -40,38 +40,35 @@ char* ser_entries(struct Entry* entries, int num_entries) {
     return ser_entries;
 }
 
-char* ser_group(struct Group g) {
-    char fmt[] = "(\"%s\" %d [%s])";
-
-    char* entries = ser_entries(g.entries, g.num_entries);
-
-    int size = strlen(g.name) + strlen(entries) + strlen(fmt);
-    char* ser_g = malloc(size);
-
-    sprintf(ser_g, fmt,
-        g.name,
-        g.sel_entry,
-        entries
-    );
-
-    free(entries);
-
-    return ser_g;
-}
-
 char* ser_groups(struct Group* groups, int num_groups) {
     int size = 1;
     char* ser_groups = malloc(size);
     strcpy(ser_groups, "");
 
-    for (int i = 0; i < num_groups; i++) {
-        char* g = ser_group(groups[i]);
+    char group_fmt[] = "(\"%s\" %d [%s])";
 
-        size += strlen(g);
+    for (int i = 0; i < num_groups; i++) {
+        struct Group g = groups[i];
+
+        char* entries = ser_entries(g.entries, g.num_entries);
+
+        char* ser_g = malloc(
+                strlen(g.name) + strlen(entries) + strlen(group_fmt));
+
+        sprintf(ser_g, group_fmt,
+            g.name,
+            g.sel_entry,
+            entries
+       );
+
+        size += strlen(ser_g);
+
         ser_groups = realloc(ser_groups, size);
 
-        strcat(ser_groups, g);
-        free(g);
+        strcat(ser_groups, ser_g);
+
+        free(entries);
+        free(ser_g);
     }
 
     return ser_groups;
