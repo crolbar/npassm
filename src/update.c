@@ -148,6 +148,9 @@ void update(struct App* app) {
 
             case 'q':
                 app->exit = true;
+
+            case 's':
+                save_db(app, "./t/db.npassdb");
                 break;
 
             case 'd':
@@ -170,10 +173,6 @@ void update(struct App* app) {
 
             case 'c':
                 copy(*get_focused_item(app));
-                break;
-
-            case 's':
-                save_db(app, "./t/db.npassdb");
                 break;
 
             case 'a':
