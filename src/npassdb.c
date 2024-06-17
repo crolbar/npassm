@@ -3,6 +3,38 @@
 #include <stdlib.h>
 #include <string.h>
 
+char* ser_str(char* str) {
+    size_t size = strlen(str);
+
+    char* ser_string = malloc(size + 3);
+    strcpy(ser_string, str);
+
+    if (strstr(str, "\"")) {
+        for (int i = 0; i < size; i++) {
+            if (str[i] == '"') {
+                size++;
+            }
+        }
+
+        ser_string = malloc(size + 3);
+
+        int num_q = 0;
+        for (int i = 0; i < strlen(str); i++) {
+            if (str[i] == '"') {
+                ser_string[i + num_q] = '\\';
+                num_q++;
+            }
+            
+            ser_string[i + num_q] = str[i];
+        }
+    }
+
+    ser_string[size] = '\\';
+    ser_string[size + 1] = 'n';
+    ser_string[size + 2] = '\0';
+    return ser_string;
+}
+
 char* ser_entries(struct Entry* entries, int num_entries) {
     int size = 1;
     char* ser_entries = malloc(size);
@@ -13,22 +45,28 @@ char* ser_entries(struct Entry* entries, int num_entries) {
     for (int i = 0; i < num_entries; i++) {
         struct Entry e = entries[i];
         
-        int e_size = strlen(e.name) +
-            strlen(e.username) +
-            strlen(e.password) +
-            strlen(e.email) +
-            strlen(e.notes) +
+        char* ser_name = ser_str(e.name);
+        char* ser_username = ser_str(e.username);
+        char* ser_email = ser_str(e.email);
+        char* ser_password = ser_str(e.password);
+        char* ser_notes = ser_str(e.notes);
+
+        int e_size = strlen(ser_name) +
+            strlen(ser_username) +
+            strlen(ser_email) +
+            strlen(ser_password) +
+            strlen(ser_notes) +
             strlen(fmt) + 1;
 
         char* ser_e = malloc(e_size);
 
         sprintf(ser_e, fmt,
             e.sel_field,
-            e.name,
-            e.username,
-            e.email,
-            e.password,
-            e.notes
+            ser_name,
+            ser_username,
+            ser_email,
+            ser_password,
+            ser_notes
         );
 
         size += e_size;
@@ -51,12 +89,13 @@ char* ser_groups(struct Group* groups, int num_groups) {
         struct Group g = groups[i];
 
         char* entries = ser_entries(g.entries, g.num_entries);
+        char* ser_name = ser_str(g.name);
 
         char* ser_g = malloc(
-                strlen(g.name) + strlen(entries) + strlen(group_fmt));
+                strlen(ser_name) + strlen(entries) + strlen(group_fmt));
 
         sprintf(ser_g, group_fmt,
-            g.name,
+            ser_name,
             g.sel_entry,
             entries
        );
@@ -78,10 +117,11 @@ void save_db(const struct App* app, char* path) {
     FILE* f = fopen(path, "w");
 
     char* groups = ser_groups(app->group_pane.groups, app->group_pane.num_groups);
+    char* ser_dbname = ser_str(app->dbname);
 
     fprintf(f,
         "{\"%s\"}{%d [%s]}",
-        app->dbname,
+        ser_dbname,
         app->group_pane.sel,
         groups
     );
@@ -105,14 +145,34 @@ struct Deserializer {
 char* de_str(struct Deserializer* d) {
     int start = ++d->i;
 
-    while (d->i < d->f_size && d->f_conts[d->i] != '"') {
+    int num_q = 0;
+
+    while (d->i < d->f_size) {
+        if (d->f_conts[d->i] == '"') {
+            if (d->f_conts[d->i - 1] == 'n' && d->f_conts[d->i - 2] == '\\') {
+                break;
+            }
+
+            num_q++;
+        }
+
         d->i++;
     }
 
-    int len = d->i - start;
-    char* str = malloc(len + 1);
+    // -2 because of the \n at the end
+    int len = (d->i - start) - num_q - 2;
 
-    strncpy(str, &d->f_conts[start], len);
+    char* str = malloc(len + 2);
+
+    int skipped_q = 0;
+    for (int i = 0; i < len; i++) {
+        if (d->f_conts[start + i + skipped_q] == '\\' && d->f_conts[start + i + skipped_q + 1] == '"') {
+            skipped_q++;
+        }
+      
+        str[i] = d->f_conts[start + i + skipped_q];
+    }
+
     str[len] = '\0';
 
     return str;
