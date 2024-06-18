@@ -1,5 +1,7 @@
 #include <ncurses.h>
 #include <stdbool.h>
+#include <libgen.h>
+#include <sys/stat.h>
 
 #include "app.h"
 
@@ -99,7 +101,60 @@ void init_windows(struct App* app) {
     refresh();
 }
 
-int main() {
+char* handle_args(int argc, char** argv) {
+    for (int i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+            printf(
+                "npassm, a ncurses tui password manager!\n\n"
+                "Usage: npassm <PATH>\n\n"
+                "Provide a path to a db file created by npassm,\n or a non existent file and it will create a db file.\n"
+            );
+            exit(0);
+        }
+    }
+
+    char* path = argv[1];
+    char* parent_path = dirname(strdup(path));
+
+    struct stat statbuf;
+    struct stat p_statbuf;
+
+    // path exists
+    bool exists = !stat(path, &statbuf);
+
+    // path is not dir
+    if (S_ISDIR(statbuf.st_mode)) {
+        printf("Path is a directory.\n");
+        exit(0);
+    }
+    
+    // parent exists
+    if (stat(parent_path, &p_statbuf) != 0) {
+        printf("Invalid path.\n");
+        exit(0);
+    }
+
+    // parent is dir
+    if (!S_ISDIR(p_statbuf.st_mode)) {
+        printf("Invalid path. Parent is not an directory.\n");
+        exit(0);
+    }
+
+
+    if (!exists) {
+        struct App a = init_app(path);
+        save_db(&a);
+    } else if (!is_npassdb(path)) {
+        printf("Wrong file format.\n");
+        exit(0);
+    }
+
+    return path;
+}
+
+int main(int argc, char** argv) {
+    char* path = handle_args(argc, argv);
+
     initscr();
     cbreak();
     raw();
@@ -113,7 +168,7 @@ int main() {
     init_pair(2, 8, 0);
     init_pair(3, 1, 5);
 
-    struct App app = open_db("./t/db.npassdb");
+    struct App app = open_db(path);
 
     do {
         update(&app);

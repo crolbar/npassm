@@ -22,6 +22,7 @@ struct Panes {
 struct App {
     int exit;
     char* dbname;
+    char* dbpath;
 
     struct Panes panes;
     struct DialogBox dialogbox;
@@ -38,7 +39,9 @@ bool render_entry_pane(
 void init_windows(struct App* app);
 void init_dialogbox_windows(struct DialogBox* db);
 
-void save_db(const struct App* app, char* path);
+void save_db(const struct App* app);
 struct App open_db(char* path);
+bool is_npassdb(char* path);
+struct App init_app(char* path);
 
 #endif

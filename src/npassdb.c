@@ -113,14 +113,14 @@ char* ser_groups(struct Group* groups, int num_groups) {
     return ser_groups;
 }
 
-void save_db(const struct App* app, char* path) {
-    FILE* f = fopen(path, "w");
+void save_db(const struct App* app) {
+    FILE* f = fopen(app->dbpath, "w");
 
     char* groups = ser_groups(app->group_pane.groups, app->group_pane.num_groups);
     char* ser_dbname = ser_str(app->dbname);
 
     fprintf(f,
-        "{\"%s\"}{%d [%s]}",
+        "npassdb {\"%s\"}{%d [%s]}",
         ser_dbname,
         app->group_pane.sel,
         groups
@@ -311,9 +311,11 @@ void de_metadata(struct Deserializer* d) {
     }
 }
 
-struct App init_app() {
+struct App init_app(char* path) {
     struct App app = {
         .exit = false,
+        .dbpath = path,
+        .dbname = "test",
         .panes = {
             .active = Group,
         },
@@ -337,7 +339,7 @@ struct App init_app() {
 }
 
 struct App open_db(char* path) {
-    struct App app = init_app();
+    struct App app = init_app(path);
     struct Deserializer d = { .app = &app };
 
 
@@ -359,11 +361,11 @@ struct App open_db(char* path) {
 
     
     for (d.i = 0; d.i < d.f_size; d.i++) {
-        if (d.f_conts[d.i] == '{' && d.i == 0) {
+        if (d.f_conts[d.i] == '{' && d.i == 8) {
             de_metadata(&d);
         }
 
-        if (d.f_conts[d.i] == '{' && d.i > 0) {
+        if (d.f_conts[d.i] == '{' && d.i > 8) {
             de_data(&d);
             break;
         }
@@ -373,4 +375,19 @@ struct App open_db(char* path) {
     fclose(f);
     free(d.f_conts);
     return app;
+}
+
+bool is_npassdb(char* path) {
+    FILE* f = fopen(path, "r");
+
+    char* f_conts = malloc(8 * sizeof(char));
+
+    if (fread(f_conts, sizeof(char), 7, f) != 7) {
+        printf("Error occured while reading file.");
+        exit(1);
+    };
+
+    fclose(f);
+
+    return strstr(f_conts, "npassdb");
 }
