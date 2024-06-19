@@ -7,34 +7,34 @@
 void handle_pane_focus_change(struct App* app, bool left) {
     if (!left) {
         if (
-                app->panes.active == Group &&
+                app->panes.active == PaneGroup &&
                 app->group_pane.num_groups
            ) 
         {
-            app->panes.active = Entry;
+            app->panes.active = PaneEntry;
 
             app->group_pane.win = newwin(LINES, COLS * 0.10, 0, 0);
             app->entry_pane.win = newwin(LINES, COLS * 0.40, 0, COLS * 0.10);
 
         } else if 
             (
-                app->panes.active == Entry &&
+                app->panes.active == PaneEntry &&
                 app->group_pane.groups[app->group_pane.sel].num_entries != 0
             ) 
         {
-            app->panes.active = EntryFields;
+            app->panes.active = PaneEntryFields;
         }
     } else {
-        if (app->panes.active == Entry) 
+        if (app->panes.active == PaneEntry) 
         {
-            app->panes.active = Group;
+            app->panes.active = PaneGroup;
 
             app->group_pane.win = newwin(LINES, COLS * 0.15, 0, 0);
             app->entry_pane.win = newwin(LINES, COLS * 0.35, 0, COLS * 0.15);
 
-        } else if (app->panes.active == EntryFields) 
+        } else if (app->panes.active == PaneEntryFields) 
         {
-            app->panes.active = Entry;
+            app->panes.active = PaneEntry;
         }
     }
 
@@ -52,14 +52,14 @@ char** get_focused_item(struct App* app) {
         }
 
         switch (app->panes.active) {
-            case Group:
+            case PaneGroup:
                 str = &g->name;
                 break;
-            case Entry:
+            case PaneEntry:
                 if (e)
                     str = &e->name;
                 break;
-            case EntryFields:
+            case PaneEntryFields:
                 switch (e->sel_field) {
                     case 0:
                         str = &e->username;
@@ -97,16 +97,16 @@ void copy(const char *text) {
 void update(struct App* app) {
     int c = getch();
 
-    if (app->panes.active != DialogBox) {
+    if (app->panes.active != PaneDialogBox) {
         switch (c) {
 
             case KEY_UP:
             case 'k':
-                if (app->panes.active == Group) {
+                if (app->panes.active == PaneGroup) {
                     group_select_prev(&app->group_pane.sel);
-                } else if (app->panes.active == Entry) {
+                } else if (app->panes.active == PaneEntry) {
                     entry_sel_prev(&app->group_pane.groups[app->group_pane.sel].sel_entry);
-                } else if (app->panes.active == EntryFields) {
+                } else if (app->panes.active == PaneEntryFields) {
                     struct Group* g = &app->group_pane.groups[app->group_pane.sel];
                     entry_field_sel_prev(&g->entries[g->sel_entry].sel_field);
                 }
@@ -120,11 +120,11 @@ void update(struct App* app) {
 
             case KEY_DOWN:
             case 'j':
-                if (app->panes.active == Group) {
+                if (app->panes.active == PaneGroup) {
                     group_select_next(&app->group_pane);
-                } else if (app->panes.active == Entry) {
+                } else if (app->panes.active == PaneEntry) {
                     entry_sel_next(&app->group_pane.groups[app->group_pane.sel]);
-                } else if (app->panes.active == EntryFields) {
+                } else if (app->panes.active == PaneEntryFields) {
                     struct Group* g = &app->group_pane.groups[app->group_pane.sel];
                     entry_field_sel_next(&g->entries[g->sel_entry].sel_field);
                 }
@@ -154,7 +154,7 @@ void update(struct App* app) {
                 break;
 
             case 'd':
-                if (app->panes.active != EntryFields) {
+                if (app->panes.active != PaneEntryFields) {
                     set_dialogbox_title(app, c);
                     start_confirm(&app->panes, &app->dialogbox,  c);
                 }
@@ -172,9 +172,9 @@ void update(struct App* app) {
                 break;
 
             case 'a':
-                if (app->panes.active == Entry) {
+                if (app->panes.active == PaneEntry) {
                     entry_add(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
-                } else if (app->panes.active == Group) {
+                } else if (app->panes.active == PaneGroup) {
                     group_add(&app->group_pane);
                 }
 
@@ -207,7 +207,7 @@ void update(struct App* app) {
                     {
                         struct Group g = app->group_pane.groups[app->group_pane.sel];
                         if (
-                                app->panes.prev_active != EntryFields ||
+                                app->panes.prev_active != PaneEntryFields ||
                                 g.entries[g.sel_entry].sel_field != 3
                            )
                         {
@@ -220,11 +220,11 @@ void update(struct App* app) {
                     if (c != -1) {
                         if (
                                 (
-                                 app->panes.prev_active == Group &&
+                                 app->panes.prev_active == PaneGroup &&
                                  strlen(app->dialogbox.mod_str) == 11
                                 ) ||
                                 (
-                                 app->panes.prev_active == Entry &&
+                                 app->panes.prev_active == PaneEntry &&
                                  strlen(app->dialogbox.mod_str) == 32
                                 )
                            ) 

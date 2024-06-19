@@ -8,10 +8,10 @@
 #include <ncurses.h>
 
 enum PaneTypes {
-    Group,
-    Entry,
-    EntryFields,
-    DialogBox,
+    PaneGroup,
+    PaneEntry,
+    PaneEntryFields,
+    PaneDialogBox,
 };
 
 struct Panes {

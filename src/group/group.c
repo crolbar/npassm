@@ -7,7 +7,7 @@
 bool render_groups(struct App *app) {
     WINDOW* win = app->group_pane.win;
 
-    if (app->panes.active == Group) {
+    if (app->panes.active == PaneGroup) {
         wattron(win, COLOR_PAIR(1));
     }
 

@@ -82,7 +82,7 @@ void start_confirm(struct Panes* panes, struct DialogBox* db, char op) {
     db->op = op;
 
     panes->prev_active = panes->active;
-    panes->active = DialogBox;
+    panes->active = PaneDialogBox;
 }
 
 void stop_confirm(struct App* app, bool cancel) {
@@ -92,9 +92,9 @@ void stop_confirm(struct App* app, bool cancel) {
         switch (app->dialogbox.op) {
             case 'd':
                 {
-                    if (app->panes.active == Entry) {
+                    if (app->panes.active == PaneEntry) {
                         entry_remove(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
-                    } else if (app->panes.active == Group) {
+                    } else if (app->panes.active == PaneGroup) {
                         group_remove(&app->group_pane);
 
                         werase(app->entry_pane.win);
@@ -208,8 +208,8 @@ void handle_keypress(struct DialogBox* db, char c) {
 }
 
 void set_dialogbox_title(struct App* app, char c) {
-    char* action;
-    char* sub;
+    char* action = "";
+    char* sub = "";
 
     struct Group g = app->group_pane.groups[app->group_pane.sel];
     struct Entry e;
@@ -218,7 +218,7 @@ void set_dialogbox_title(struct App* app, char c) {
     }
     
     switch (app->panes.active) {
-        case Group: 
+        case PaneGroup: 
             {
                 if (c == 'r') {
                     action = "Rename Group";
@@ -230,7 +230,7 @@ void set_dialogbox_title(struct App* app, char c) {
 
                 sub = g.name;
             } break;
-        case Entry:
+        case PaneEntry:
             if (c == 'r') {
                 action = "Rename Entry";
             } else if (c == 'a') {
@@ -242,7 +242,7 @@ void set_dialogbox_title(struct App* app, char c) {
             sub = e.name;
 
             break;
-        case EntryFields:
+        case PaneEntryFields:
             switch (e.sel_field) {
                 case 0:
                     action = "Set username for";
@@ -281,7 +281,7 @@ void set_dialogbox_title(struct App* app, char c) {
 void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
     db->is_editing = true;
     panes->prev_active = panes->active;
-    panes->active = DialogBox;
+    panes->active = PaneDialogBox;
     db->origin_str = origin;
     db->mod_str = strdup(*origin);
     curs_set(1);
@@ -337,7 +337,7 @@ void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
 void stop_editing(struct App* app, bool save) {
     if (
             !strlen(app->dialogbox.mod_str) &&
-            app->panes.prev_active != EntryFields &&
+            app->panes.prev_active != PaneEntryFields &&
             save
        )
     {

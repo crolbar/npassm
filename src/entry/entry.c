@@ -9,7 +9,7 @@ bool render_entry_info(
 {
     WINDOW* win = ep->info_win;
 
-    if (active_pane == EntryFields) {
+    if (active_pane == PaneEntryFields) {
         wattron(win, COLOR_PAIR(1));
     }
     box(win, 0, 0);
@@ -52,7 +52,7 @@ bool render_entry_pane(
 {
     WINDOW* win = ep->win;
 
-    if (active_pane == Entry) {
+    if (active_pane == PaneEntry) {
         wattron(win, COLOR_PAIR(1));
     }
 
