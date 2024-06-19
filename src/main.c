@@ -16,17 +16,17 @@ void init_dialogbox_windows(struct DialogBox* db) {
     const int DIALOGBOX_WIN_HEIGHT = LINES * 0.25;
     const int DIALOGBOX_WIN_WIDTH = COLS * 0.25;
     const int DIALOGBOX_WIN_START_Y = LINES * 0.37;
-    const int DIALOGBOX_WIN_START_X = COLS * 0.35;
+    const int DIALOGBOX_WIN_START_X = COLS * 0.38;
     
     const int INPUT_BOX_BORDER_WIN_HEIGHT = 3;
     const int INPUT_BOX_BORDER_WIN_WIDTH = (COLS * 0.25) - 4;
     const int INPUT_BOX_BORDER_WIN_START_Y = (LINES * 0.37) + 4;
-    const int INPUT_BOX_BORDER_WIN_START_X = (COLS * 0.35) + 2;
+    const int INPUT_BOX_BORDER_WIN_START_X = (COLS * 0.38) + 2;
 
     const int INPUT_BOX_WIN_HEIGHT = 1;
     const int INPUT_BOX_WIN_WIDTH = (COLS * 0.25) - 6;
     const int INPUT_BOX_WIN_START_Y = (LINES * 0.37) + 5;
-    const int INPUT_BOX_WIN_START_X = (COLS * 0.35) + 3;
+    const int INPUT_BOX_WIN_START_X = (COLS * 0.38) + 3;
 
     db->win = newwin(
             DIALOGBOX_WIN_HEIGHT,
@@ -45,6 +45,20 @@ void init_dialogbox_windows(struct DialogBox* db) {
             INPUT_BOX_WIN_WIDTH,
             INPUT_BOX_WIN_START_Y,
             INPUT_BOX_WIN_START_X
+    );
+
+    db->confirm_yes_win = derwin(db->win,
+            3,
+            10,
+            DIALOGBOX_WIN_HEIGHT / 2,
+            DIALOGBOX_WIN_WIDTH * 0.25
+    );
+
+    db->confirm_no_win = derwin(db->win,
+            3,
+            10,
+            DIALOGBOX_WIN_HEIGHT / 2,
+            (DIALOGBOX_WIN_WIDTH * 0.75) - 10
     );
 }
 

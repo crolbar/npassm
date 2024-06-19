@@ -154,13 +154,9 @@ void update(struct App* app) {
                 break;
 
             case 'd':
-                if (app->panes.active == Entry) {
-                    entry_remove(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
-                } else if (app->panes.active == Group) {
-                    group_remove(&app->group_pane);
-
-                    werase(app->entry_pane.win);
-                    wnoutrefresh(app->entry_pane.win);
+                if (app->panes.active != EntryFields) {
+                    set_dialogbox_title(app, c);
+                    start_confirm(&app->panes, &app->dialogbox,  c);
                 }
                 break;
 
@@ -187,54 +183,73 @@ void update(struct App* app) {
                     char** str = get_focused_item(app);
 
                     if (str) {
-                        set_dialogbox_title(app, c == 'r');
+                        set_dialogbox_title(app, c);
                         start_editing(&app->panes, &app->dialogbox, str);
                     }
                 } break;
         }
     } else {
-        switch (c) {
-            case 19: /*ctrl+s*/ case 24: /*ctrl+x*/ case 27: /*esc*/
-                stop_editing(app, c == 19);
-                break;
+        if (app->dialogbox.is_editing) {
+            switch (c) {
+                case 19: /*ctrl+s*/ case 24: /*ctrl+x*/ case 27: /*esc*/
+                    stop_editing(app, c == 19);
+                    break;
 
-            case 8:
-            case KEY_BACKSPACE:
-                mod_str_pop(&app->dialogbox, c == 8);
-                break;
+                case 8:
+                case KEY_BACKSPACE:
+                    mod_str_pop(&app->dialogbox, c == 8);
+                    break;
 
-            //me no likey tab
-            case 9: break;
+                //me no likey tab
+                case 9: break;
 
-            case 10:
-                {
-                    struct Group g = app->group_pane.groups[app->group_pane.sel];
-                    if (
-                            app->panes.prev_active != EntryFields ||
-                            g.entries[g.sel_entry].sel_field != 3
-                       )
+                case 10:
                     {
-                        stop_editing(app, true);
-                        break;
+                        struct Group g = app->group_pane.groups[app->group_pane.sel];
+                        if (
+                                app->panes.prev_active != EntryFields ||
+                                g.entries[g.sel_entry].sel_field != 3
+                           )
+                        {
+                            stop_editing(app, true);
+                            break;
+                        }
                     }
-                }
 
-            default: 
-                if (c != -1) {
-                    if (
-                            (
-                             app->panes.prev_active == Group &&
-                             strlen(app->dialogbox.mod_str) == 11
-                            ) ||
-                            (
-                             app->panes.prev_active == Entry &&
-                             strlen(app->dialogbox.mod_str) == 32
-                            )
-                       ) 
-                    { break; }
+                default: 
+                    if (c != -1) {
+                        if (
+                                (
+                                 app->panes.prev_active == Group &&
+                                 strlen(app->dialogbox.mod_str) == 11
+                                ) ||
+                                (
+                                 app->panes.prev_active == Entry &&
+                                 strlen(app->dialogbox.mod_str) == 32
+                                )
+                           ) 
+                        { break; }
 
-                    handle_keypress(&app->dialogbox, c);
-                }
+                        handle_keypress(&app->dialogbox, c);
+                    }
+            }
+        } else {
+            switch (c) {
+                case 'l':
+                case KEY_RIGHT:
+                    app->dialogbox.is_yes = false;
+                    break;
+                case 'h':
+                case KEY_LEFT:
+                    app->dialogbox.is_yes = true;
+                    break;
+
+                case 27:
+                case 24:
+                case 10:
+                    stop_confirm(app, c != 10);
+                    break;
+            }
         }
     }
 

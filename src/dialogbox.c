@@ -4,49 +4,109 @@
 #include <ncurses.h>
 
 bool render_bialogbox(struct DialogBox* db) {
-    {
-        WINDOW* win = db->win;
+    WINDOW* win = db->win;
 
-        wattron(win, COLOR_PAIR(1));
+    wattron(win, COLOR_PAIR(1));
 
-        box(win, 0, 0);
-        mvwprintw(win, 0, 1, "Dialog Box");
-        wattroff(win, COLOR_PAIR(1));
+    box(win, 0, 0);
+    mvwprintw(win, 0, 1, "Dialog Box");
+    wattroff(win, COLOR_PAIR(1));
+    mvwprintw(win,
+        2,
+        (getmaxx(win) / 2) - strlen(db->title) / 2,
+        "%s", db->title
+    );
 
-        mvwprintw(win,
-            2,
-            (getmaxx(win) / 2) - strlen(db->title) / 2,
-            "%s", db->title
-        );
+    wnoutrefresh(win);
 
-        wnoutrefresh(win);
-    }
+    if (db->is_editing) {
 
-    {
-        WINDOW* input_box_border_win = db->input_box_border_win;
+        {
+            wattron(db->input_box_border_win, COLOR_PAIR(2));
+            box(db->input_box_border_win, 0, 0);
+            wattroff(db->input_box_border_win, COLOR_PAIR(2));
 
-        wattron(input_box_border_win, COLOR_PAIR(2));
-        box(input_box_border_win, 0, 0);
-        wattroff(input_box_border_win, COLOR_PAIR(2));
+            wnoutrefresh(db->input_box_border_win);
+        }
 
-        wnoutrefresh(input_box_border_win);
-    }
+        
+        {
+            werase(db->input_box_win);
 
-    
-    {
-        WINDOW* input_box_win = db->input_box_win;
-        werase(input_box_win);
+            mvwprintw(
+                db->input_box_win,
+                0, 0,
+                "%s", db->mod_str
+            );
 
-        mvwprintw(
-            input_box_win,
-            0, 0,
-            "%s", db->mod_str
-        );
+            wnoutrefresh(db->input_box_win);
+        }
+    } else {
+        {
+            werase(db->confirm_yes_win);
+            werase(db->confirm_no_win);
 
-        wnoutrefresh(input_box_win);
+            if (db->is_yes) {
+                wattron(db->confirm_yes_win, COLOR_PAIR(1));
+                box(db->confirm_yes_win, 0, 0);
+                wattroff(db->confirm_yes_win, COLOR_PAIR(1));
+            } else {
+                wattron(db->confirm_no_win, COLOR_PAIR(1));
+                box(db->confirm_no_win, 0, 0);
+                wattroff(db->confirm_no_win, COLOR_PAIR(1));
+            }
+
+            mvwprintw(
+                db->confirm_yes_win,
+                1, 3,
+                "Yes"
+            );
+
+            mvwprintw(
+                db->confirm_no_win,
+                1, 4,
+                "No"
+            );
+
+            wnoutrefresh(db->confirm_yes_win);
+            wnoutrefresh(db->confirm_no_win);
+        }
     }
 
     return true;
+}
+
+void start_confirm(struct Panes* panes, struct DialogBox* db, char op) {
+    db->is_yes = false;
+    db->is_editing = false;
+    db->op = op;
+
+    panes->prev_active = panes->active;
+    panes->active = DialogBox;
+}
+
+void stop_confirm(struct App* app, bool cancel) {
+    app->panes.active = app->panes.prev_active;
+
+    if (app->dialogbox.is_yes && !cancel) {
+        switch (app->dialogbox.op) {
+            case 'd':
+                {
+                    if (app->panes.active == Entry) {
+                        entry_remove(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
+                    } else if (app->panes.active == Group) {
+                        group_remove(&app->group_pane);
+
+                        werase(app->entry_pane.win);
+                        wnoutrefresh(app->entry_pane.win);
+                    }
+                }
+                break;
+        }
+    }
+
+    werase(app->dialogbox.win);
+    wnoutrefresh(app->dialogbox.win);
 }
 
 void size_down_db_windows(struct DialogBox* db) {
@@ -147,7 +207,7 @@ void handle_keypress(struct DialogBox* db, char c) {
     }
 }
 
-void set_dialogbox_title(struct App* app, bool renaming) {
+void set_dialogbox_title(struct App* app, char c) {
     char* action;
     char* sub;
 
@@ -160,19 +220,23 @@ void set_dialogbox_title(struct App* app, bool renaming) {
     switch (app->panes.active) {
         case Group: 
             {
-                if (renaming) {
+                if (c == 'r') {
                     action = "Rename Group";
-                } else {
+                } else if (c == 'a') {
                     action = "Set name for";
-                };
+                } else if (c == 'd') {
+                    action = "Do you wish to delete group";
+                }
 
                 sub = g.name;
             } break;
         case Entry:
-            if (renaming) {
+            if (c == 'r') {
                 action = "Rename Entry";
-            } else {
+            } else if (c == 'a') {
                 action = "Set name for";
+            } else if (c == 'd') {
+                action = "Do you wish to delete entry";
             }
 
             sub = e.name;
@@ -215,6 +279,7 @@ void set_dialogbox_title(struct App* app, bool renaming) {
 }
 
 void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
+    db->is_editing = true;
     panes->prev_active = panes->active;
     panes->active = DialogBox;
     db->origin_str = origin;
@@ -272,7 +337,8 @@ void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
 void stop_editing(struct App* app, bool save) {
     if (
             !strlen(app->dialogbox.mod_str) &&
-            app->panes.prev_active != EntryFields
+            app->panes.prev_active != EntryFields &&
+            save
        )
     {
         return;
