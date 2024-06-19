@@ -120,8 +120,9 @@ void save_db(const struct App* app) {
     char* ser_dbname = ser_str(app->dbname);
 
     fprintf(f,
-        "npassdb {\"%s\"}{%d [%s]}",
+        "npassdb {\"%s\"}{%d %d [%s]}",
         ser_dbname,
+        app->panes.active,
         app->group_pane.sel,
         groups
     );
@@ -271,9 +272,8 @@ void de_group(struct Deserializer* d) {
 }
 
 void de_data(struct Deserializer* d) {
-    if (d->app->group_pane.sel == -1) {
-        d->app->group_pane.sel = de_int(d);
-    }
+    d->app->panes.active = de_int(d);
+    d->app->group_pane.sel = de_int(d);
 
     for (++d->i; d->i < d->f_size; d->i++) {
         if (d->f_conts[d->i] == '}') {
@@ -317,7 +317,7 @@ struct App init_app(char* path) {
         .dbpath = path,
         .dbname = "test",
         .panes = {
-            .active = Group,
+            .active = 0,
         },
         .group_pane = {
             .sel = -1,
