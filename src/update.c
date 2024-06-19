@@ -150,7 +150,7 @@ void update(struct App* app) {
                 app->exit = true;
 
             case 's':
-                save_db(app, "./t/db.npassdb");
+                save_db(app);
                 break;
 
             case 'd':
@@ -193,15 +193,6 @@ void update(struct App* app) {
                 } break;
         }
     } else {
-        if (strstr(getenv("TERM"), "xterm")) {
-            if (c == 127) {
-                c = 263;
-            } else 
-            if (c == 263) {
-                c = 8;
-            }
-        }
-
         switch (c) {
             case 19: /*ctrl+s*/ case 24: /*ctrl+x*/ case 27: /*esc*/
                 stop_editing(app, c == 19);

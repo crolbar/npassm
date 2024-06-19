@@ -1,5 +1,4 @@
 #include "app.h"
-#include "group/entry/entry.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
@@ -68,35 +67,34 @@ void size_down_db_windows(struct DialogBox* db) {
 void mod_str_pop(struct DialogBox* db, bool word) {
     int l = strlen(db->mod_str);
 
-    if (db->mod_str[l - 1] == '\n') {
-        werase(db->win);
-        wnoutrefresh(db->win);
-        size_down_db_windows(db);
-    }
-
-    if (word) {
-        for (l -= 1; l > 0; l--) {
-            if (db->mod_str[l] == ' ' || db->mod_str[l] == '\n') {
-                break;
-            } 
-        }
-    }
-
-    // allows for deleting the first word
-    if (l == 0) l += 1; 
-
     if (l > 0) {
-        char* str = (char*)malloc(l * sizeof(char));
-        strncpy(str, db->mod_str, l - 1);
+        if (db->mod_str[l - 1] == '\n') {
+            werase(db->win);
+            wnoutrefresh(db->win);
+            size_down_db_windows(db);
+        }
 
-        str[l - 1] = '\0';
+        if (word) {
+            for (l -= 1; l > 0; l--) {
+                if (db->mod_str[l] == ' ' || db->mod_str[l] == '\n') {
+                    break;
+                } 
+            }
+        } else {
+            l--; 
+        }
+
+        char* str = (char*)malloc((l + 1) * sizeof(char));
+        strncpy(str, db->mod_str, l);
+
+        str[l] = '\0';
 
         free(db->mod_str);
         db->mod_str = str;
-    }
 
-    werase(db->win);
-    wnoutrefresh(db->win);
+        werase(db->win);
+        wnoutrefresh(db->win);
+    }
 }
 int get_curr_line_len(char* str, int w) {
     if (strstr(str, "\n")) {

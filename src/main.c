@@ -7,7 +7,7 @@
 
 #include "dialogbox.c"
 #include "group/group.c"
-#include "group/entry/entry.c"
+#include "entry/entry.c"
 #include "update.c"
 #include "ui.c"
 #include "npassdb.c"
@@ -63,9 +63,9 @@ void init_windows(struct App* app) {
     const int ENTRY_WIN_START_X = GROUP_WIN_WIDTH;
 
     const int INFO_WIN_HEIGHT = LINES;
-    const int INFO_WIN_WIDTH = COLS * 0.50;
+    const int INFO_WIN_WIDTH = COLS * 0.49;
     const int INFO_WIN_START_Y = 0;
-    const int INFO_WIN_START_X = COLS * 0.50;
+    const int INFO_WIN_START_X = COLS * 0.51;
 
     app->group_pane.win = newwin(
             GROUP_WIN_HEIGHT,

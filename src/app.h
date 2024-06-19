@@ -3,7 +3,7 @@
 
 #include "dialogbox.h"
 #include "group/group.h"
-#include "group/entry/entry.h"
+#include "entry/entry.h"
 
 #include <ncurses.h>
 
