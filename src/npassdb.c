@@ -165,13 +165,13 @@ char* de_str(struct Deserializer* d) {
 
     char* str = malloc(len + 2);
 
-    int skipped_q = 0;
+    int skipped_backslash = 0;
     for (int i = 0; i < len; i++) {
-        if (d->f_conts[start + i + skipped_q] == '\\' && d->f_conts[start + i + skipped_q + 1] == '"') {
-            skipped_q++;
+        if (d->f_conts[start + i + skipped_backslash] == '\\' && d->f_conts[start + i + skipped_backslash + 1] == '"') {
+            skipped_backslash++;
         }
       
-        str[i] = d->f_conts[start + i + skipped_q];
+        str[i] = d->f_conts[start + i + skipped_backslash];
     }
 
     str[len] = '\0';
