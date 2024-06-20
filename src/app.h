@@ -4,6 +4,7 @@
 #include "dialogbox.h"
 #include "group/group.h"
 #include "entry/entry.h"
+#include "passgen.h"
 
 #include <ncurses.h>
 
@@ -12,6 +13,7 @@ enum PaneTypes {
     PaneEntry,
     PaneEntryFields,
     PaneDialogBox,
+    PanePassgen,
 };
 
 struct Panes {
@@ -28,6 +30,7 @@ struct App {
     struct DialogBox dialogbox;
     struct GroupPane group_pane;
     struct EntryPane entry_pane;
+    struct Passgen passgen;
 };
 
 bool render_groups(struct App *app);
@@ -35,6 +38,8 @@ bool render_entry_pane(
         struct EntryPane* ep,
         enum PaneTypes active_pane,
         struct Group* group);
+
+bool render_passgen(const struct App* app);
 
 void init_windows(struct App* app);
 void init_dialogbox_windows(struct DialogBox* db);

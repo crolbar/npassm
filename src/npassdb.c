@@ -330,6 +330,12 @@ struct App init_app(char* path) {
         .dialogbox = {
             .title = NULL,
             .risized = false,
+        },
+        .passgen = {
+            .sel = 0,
+            .numbers = true,
+            .symbols = true,
+            .slider = 1,
         }
     };
 

@@ -7,5 +7,9 @@ void draw(struct App* app) {
         render_bialogbox(&app->dialogbox);
     }
 
+    if (app->panes.active == PanePassgen) {
+        render_passgen(app);
+    }
+
     doupdate();
 }

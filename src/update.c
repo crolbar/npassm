@@ -97,7 +97,7 @@ void copy(const char *text) {
 void update(struct App* app) {
     int c = getch();
 
-    if (app->panes.active != PaneDialogBox) {
+    if (app->panes.active == PaneGroup || app->panes.active == PaneEntry || app->panes.active == PaneEntryFields) {
         switch (c) {
 
             case KEY_UP:
@@ -141,6 +141,10 @@ void update(struct App* app) {
                 handle_pane_focus_change(app, false);
                 break;
 
+            case 'g':
+                start_passgen(app);
+                break;
+
             case KEY_LEFT:
             case 'h':
                 handle_pane_focus_change(app, true);
@@ -176,7 +180,7 @@ void update(struct App* app) {
                     entry_add(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
                 } else if (app->panes.active == PaneGroup) {
                     group_add(&app->group_pane);
-                }
+                } else { break; }
 
             case 'r': 
                 {
@@ -188,7 +192,7 @@ void update(struct App* app) {
                     }
                 } break;
         }
-    } else {
+    } else if (app->panes.active == PaneDialogBox) {
         if (app->dialogbox.is_editing) {
             switch (c) {
                 case 19: /*ctrl+s*/ case 24: /*ctrl+x*/ case 27: /*esc*/
@@ -251,6 +255,46 @@ void update(struct App* app) {
                     break;
             }
         }
+    } else if (app->panes.active == PanePassgen) {
+        switch (c) {
+            case 'k':
+            case KEY_UP:
+                if (app->passgen.sel > 0) app->passgen.sel -= 1;
+                break;
+
+            case 'j':
+            case KEY_DOWN:
+                if (app->passgen.sel < 3) app->passgen.sel += 1;
+                break;
+
+            case 'h':
+            case KEY_LEFT:
+                if (app->passgen.slider > 1) app->passgen.slider -= 1;
+                break;
+
+            case 'c':
+                copy(app->passgen.genpassword);
+                break;
+
+            case 'l':
+            case KEY_RIGHT:
+                if (app->passgen.slider < 16) app->passgen.slider += 1;
+                break;
+
+            case 10:
+                handle_enter_passgen(app);
+                break;
+
+            case 19: // ctrl + s
+                set_password(app);
+                break;
+
+            case 24: // ctrl + x
+            case 27: // esc
+                stop_passgen(app);
+                break;
+        }
+
     }
 
     if (c == KEY_RESIZE) init_windows(app);

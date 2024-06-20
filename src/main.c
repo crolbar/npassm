@@ -11,6 +11,7 @@
 #include "update.c"
 #include "ui.c"
 #include "npassdb.c"
+#include "passgen.c"
 
 void init_dialogbox_windows(struct DialogBox* db) {
     const int DIALOGBOX_WIN_HEIGHT = LINES * 0.25;
@@ -112,6 +113,32 @@ void init_windows(struct App* app) {
 
     init_dialogbox_windows(&app->dialogbox);
 
+    const int PASSGEN_WIN_HEIGHT = LINES / 2;
+    const int PASSGEN_WIN_WIDTH = COLS * 0.25;
+    const int PASSGEN_WIN_START_Y = LINES * 0.25;
+    const int PASSGEN_WIN_START_X = COLS * 0.37;
+
+    app->passgen.win = newwin(
+            PASSGEN_WIN_HEIGHT,
+            PASSGEN_WIN_WIDTH,
+            PASSGEN_WIN_START_Y,
+            PASSGEN_WIN_START_X
+    );
+
+    app->passgen.pass_border_win = newwin(
+            5,
+            PASSGEN_WIN_WIDTH - 10,
+            PASSGEN_WIN_START_Y + 4,
+            PASSGEN_WIN_START_X + 5
+    );
+
+    app->passgen.pass_win = newwin(
+            3,
+            PASSGEN_WIN_WIDTH - 12,
+            PASSGEN_WIN_START_Y + 5,
+            PASSGEN_WIN_START_X + 6
+    );
+
     refresh();
 }
 
@@ -177,6 +204,7 @@ int main(int argc, char** argv) {
     curs_set(0);
     keypad(stdscr, TRUE);
     timeout(200);
+    srand(time(NULL));
 
     init_pair(1, 1, 0);
     init_pair(2, 8, 0);
