@@ -114,7 +114,7 @@ void init_windows(struct App* app) {
     init_dialogbox_windows(&app->dialogbox);
 
     const int PASSGEN_WIN_HEIGHT = LINES / 2;
-    const int PASSGEN_WIN_WIDTH = COLS * 0.25;
+    const int PASSGEN_WIN_WIDTH = COLS * 0.35;
     const int PASSGEN_WIN_START_Y = LINES * 0.25;
     const int PASSGEN_WIN_START_X = COLS * 0.37;
 

@@ -113,6 +113,13 @@ void start_passgen(struct App* app) {
         app->passgen.title = malloc(strlen(fmt) + strlen(e.name));
         sprintf(app->passgen.title, fmt, e.name);
 
+        int window_width = getmaxx(app->passgen.win);
+        if (strlen(app->passgen.title) > window_width - 7) {
+            app->passgen.title[window_width - 9] = '.';
+            app->passgen.title[window_width - 8] = '.';
+            app->passgen.title[window_width - 7] = '\0';
+        }
+
         app->passgen.genpassword = generate_password(app->passgen);
     }
 }
