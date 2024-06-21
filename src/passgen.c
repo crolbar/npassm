@@ -130,8 +130,10 @@ void stop_passgen(struct App* app) {
 void set_password(struct App* app) {
     struct Group* g = &app->group_pane.groups[app->group_pane.sel];
 
-    g->entries[g->sel_entry].password = malloc(strlen(app->passgen.genpassword));
+    g->entries[g->sel_entry].password = malloc(strlen(app->passgen.genpassword) + 1);
     strcpy(g->entries[g->sel_entry].password, app->passgen.genpassword);
+
+    g->entries[g->sel_entry].password[strlen(app->passgen.genpassword)] = '\0';
 
     stop_passgen(app);
     werase(app->entry_pane.info_win);
@@ -140,7 +142,7 @@ void set_password(struct App* app) {
 void handle_enter_passgen(struct App* app) {
     switch (app->passgen.sel) {
         case 0:
-            //free(app->passgen.genpassword);
+            free(app->passgen.genpassword);
             app->passgen.genpassword = generate_password(app->passgen);
             werase(app->passgen.pass_win);
             break;
