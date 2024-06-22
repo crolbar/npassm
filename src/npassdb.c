@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "crypto.c"
+
+const bool ENC = true;
 
 char* ser_str(char* str) {
     size_t size = strlen(str);
@@ -119,13 +122,34 @@ void save_db(const struct App* app) {
     char* groups = ser_groups(app->group_pane.groups, app->group_pane.num_groups);
     char* ser_dbname = ser_str(app->dbname);
 
-    fprintf(f,
-        "npassdb {\"%s\"}{%d %d [%s]}",
+
+    char* fmt = "{\"%s\"}{%d %d [%s]}";
+
+    int ser_db_size = strlen(fmt) + strlen(ser_dbname) + strlen(groups);
+
+    char* ser_db = malloc(ser_db_size);
+
+    sprintf(ser_db, fmt,
         ser_dbname,
         app->panes.active,
         app->group_pane.sel,
         groups
     );
+
+
+    char* password = "password1";
+
+    if (ENC) {
+        fwrite("epassdb", 7, 1, f);
+        char* cipher = encrypt_db(f, password, (unsigned char*)ser_db, &ser_db_size);
+
+        fwrite(&ser_db_size, sizeof(ser_db_size), 1, f);
+        fwrite(cipher, 1, ser_db_size, f);
+    } else {
+        fwrite("npassdb", 7, 1, f);
+        fwrite(ser_db, strlen(ser_db), 1, f);
+    }
+
 
     free(groups);
 
@@ -359,24 +383,41 @@ struct App open_db(char* path) {
 
     d.f_conts = malloc((d.f_size + 1) * sizeof(char));
 
-    if (fread(d.f_conts, sizeof(char), d.f_size, f) != d.f_size) {
-        printf("Error occured while reading db file.");
-        exit(1);
-    };
+    char* form[7];
+    if (fread(form, 7, 1, f)) {};
+
+    char* password = "password1";
+
+    if (!strcmp((char*)form, "epassdb")) {
+        char* ser_db = decrypt_db(f, (int*)&d.f_size, password);
+
+        d.f_conts = malloc((d.f_size + 1) * sizeof(char));
+
+        strcpy(d.f_conts, ser_db);
+
+    } else if (!strcmp((char*)form, "npassdb")) {
+        if (fread(d.f_conts, sizeof(char), d.f_size - 7, f) != d.f_size - 7) {
+            printf("Error occured while reading db file.\n");
+            exit(1);
+        };
+
+    } else {
+        printf("Wrong file format.\n");
+        exit(0);
+    }
+    
     d.f_conts[d.f_size] = '\0';
 
-    
     for (d.i = 0; d.i < d.f_size; d.i++) {
-        if (d.f_conts[d.i] == '{' && d.i == 8) {
+        if (d.f_conts[d.i] == '{' &&  d.i == 0) {
             de_metadata(&d);
         }
 
-        if (d.f_conts[d.i] == '{' && d.i > 8) {
+        if (d.f_conts[d.i] == '{' && d.i > 0) {
             de_data(&d);
             break;
         }
     }
-    
 
     fclose(f);
     free(d.f_conts);

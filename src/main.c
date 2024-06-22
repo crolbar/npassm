@@ -185,9 +185,6 @@ char* handle_args(int argc, char** argv) {
     if (!exists) {
         struct App a = init_app(path);
         save_db(&a);
-    } else if (!is_npassdb(path)) {
-        printf("Wrong file format.\n");
-        exit(0);
     }
 
     return path;
