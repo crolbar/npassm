@@ -99,6 +99,8 @@ void stop_confirm(struct App* app, bool cancel) {
 
                         werase(app->entry_pane.win);
                         wnoutrefresh(app->entry_pane.win);
+                        werase(app->entry_pane.info_win);
+                        wnoutrefresh(app->entry_pane.info_win);
                     }
                 }
                 break;
