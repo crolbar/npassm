@@ -158,7 +158,19 @@ char* handle_args(int argc, char** argv) {
         }
     }
 
-    char* path = argv[1];
+    char* path;
+
+    if (argc == 1) {
+        char* name = "db.npassdb";
+        char* home = getenv("HOME");
+        int size = strlen(name) + strlen(home) + 2;
+        path = malloc(size);
+        sprintf(path, "%s/%s", home, name);
+        path[size] = '\0';
+    } else {
+        path = argv[1];
+    }
+
     char* parent_path = dirname(strdup(path));
 
     struct stat statbuf;
