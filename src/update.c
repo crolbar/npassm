@@ -200,8 +200,9 @@ void update(struct App* app) {
                     break;
 
                 case 8:
+                case 127:
                 case KEY_BACKSPACE:
-                    mod_str_pop(&app->dialogbox, c == 8);
+                    mod_str_pop(&app->dialogbox, c != KEY_BACKSPACE);
                     break;
 
                 //me no likey tab

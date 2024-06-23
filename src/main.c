@@ -12,6 +12,9 @@
 #include "ui.c"
 #include "npassdb.c"
 #include "passgen.c"
+#include "unlock_db.c"
+#include "input.c"
+#include "init_db.c"
 
 void init_dialogbox_windows(struct DialogBox* db) {
     const int DIALOGBOX_WIN_HEIGHT = LINES * 0.25;
@@ -145,6 +148,7 @@ void init_windows(struct App* app) {
 char* handle_args(int argc, char** argv) {
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+            endwin();
             printf(
                 "npassm, a ncurses tui password manager!\n\n"
                 "Usage: npassm <PATH>\n\n"
@@ -165,25 +169,28 @@ char* handle_args(int argc, char** argv) {
 
     // path is not dir
     if (S_ISDIR(statbuf.st_mode)) {
+        endwin();
         printf("Path is a directory.\n");
         exit(0);
     }
     
     // parent exists
     if (stat(parent_path, &p_statbuf) != 0) {
+        endwin();
         printf("Invalid path.\n");
         exit(0);
     }
 
     // parent is dir
     if (!S_ISDIR(p_statbuf.st_mode)) {
+        endwin();
         printf("Invalid path. Parent is not an directory.\n");
         exit(0);
     }
 
 
     if (!exists) {
-        struct App a = init_app(path);
+        struct App a = create_db(path);
         save_db(&a);
     }
 
@@ -191,8 +198,6 @@ char* handle_args(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-    char* path = handle_args(argc, argv);
-
     initscr();
     cbreak();
     raw();
@@ -207,7 +212,9 @@ int main(int argc, char** argv) {
     init_pair(2, 8, 0);
     init_pair(3, 1, 5);
 
-    struct App app = open_db(path);
+    char* path = handle_args(argc, argv);
+
+    struct App app = unlock_db(path);
 
     do {
         update(&app);

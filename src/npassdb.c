@@ -136,12 +136,9 @@ void save_db(const struct App* app) {
         groups
     );
 
-
-    char* password = "password1";
-
     if (ENC) {
         fwrite("epassdb", 7, 1, f);
-        char* cipher = encrypt_db(f, password, (unsigned char*)ser_db, &ser_db_size);
+        char* cipher = encrypt_db(f, app->password, (unsigned char*)ser_db, &ser_db_size);
 
         fwrite(&ser_db_size, sizeof(ser_db_size), 1, f);
         fwrite(cipher, 1, ser_db_size, f);
@@ -339,7 +336,7 @@ struct App init_app(char* path) {
     struct App app = {
         .exit = false,
         .dbpath = path,
-        .dbname = "test",
+        .dbname = NULL,
         .panes = {
             .active = 0,
         },
@@ -368,9 +365,11 @@ struct App init_app(char* path) {
     return app;
 }
 
-struct App open_db(char* path) {
-    struct App app = init_app(path);
-    struct Deserializer d = { .app = &app };
+bool open_db(struct App* app,
+        char* path,
+        char* password)
+{
+    struct Deserializer d = { .app = app };
 
 
     FILE* f = fopen(path, "r");
@@ -386,10 +385,13 @@ struct App open_db(char* path) {
     char* form[7];
     if (fread(form, 7, 1, f)) {};
 
-    char* password = "password1";
 
     if (!strcmp((char*)form, "epassdb")) {
         char* ser_db = decrypt_db(f, (int*)&d.f_size, password);
+
+        if (ser_db == NULL) {
+            return true;
+        }
 
         d.f_conts = malloc((d.f_size + 1) * sizeof(char));
 
@@ -421,20 +423,16 @@ struct App open_db(char* path) {
 
     fclose(f);
     free(d.f_conts);
-    return app;
+    return false;
 }
 
-bool is_npassdb(char* path) {
+bool is_encrypted(char* path) {
     FILE* f = fopen(path, "r");
 
-    char* f_conts = malloc(8 * sizeof(char));
-
-    if (fread(f_conts, sizeof(char), 7, f) != 7) {
-        printf("Error occured while reading file.");
-        exit(1);
-    };
+    char* form[7];
+    if (fread(form, 7, 1, f)) {};
 
     fclose(f);
 
-    return strstr(f_conts, "npassdb");
+    return strstr((char*)form, "epassdb");
 }

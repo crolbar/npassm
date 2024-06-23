@@ -98,8 +98,7 @@ char* decrypt_db(FILE* f, int* len, char* password) {
         if (EVP_DecryptFinal_ex(ctx,
                 ser_db+u_len, &f_len) != 1)
         {
-            printf("Bad decrypt. Meybe wrong password?");
-            exit(1);
+            return NULL;
         }
 
         EVP_CIPHER_CTX_free(ctx);
