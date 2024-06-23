@@ -50,6 +50,8 @@ bool open_db(struct App* app, char* path, char* password);
 bool is_npassdb(char* path);
 struct App init_app(char* path);
 
+void edit_db(struct App* app);
+
 void up_str_pop(WINDOW* win, char** mod_str, bool word);
 void up_str_push(WINDOW* win, char** mod_str, char c);
 

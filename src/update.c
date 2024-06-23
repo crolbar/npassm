@@ -157,6 +157,10 @@ void update(struct App* app) {
                 save_db(app);
                 break;
 
+            case '$':
+                edit_db(app);
+                break;
+
             case 'd':
                 if (app->panes.active != PaneEntryFields) {
                     set_dialogbox_title(app, c);
