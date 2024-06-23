@@ -46,7 +46,7 @@ void init_windows(struct App* app);
 void init_dialogbox_windows(struct DialogBox* db);
 
 void save_db(const struct App* app);
-bool open_db(struct App* app, char* path, char* password);
+bool open_db(struct App* app, char* password);
 bool is_npassdb(char* path);
 struct App init_app(char* path);
 

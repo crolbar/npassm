@@ -365,14 +365,11 @@ struct App init_app(char* path) {
     return app;
 }
 
-bool open_db(struct App* app,
-        char* path,
-        char* password)
-{
+bool open_db(struct App* app, char* password) {
     struct Deserializer d = { .app = app };
 
 
-    FILE* f = fopen(path, "r");
+    FILE* f = fopen(app->dbpath, "r");
 
 
     fseek(f, 0, SEEK_END);

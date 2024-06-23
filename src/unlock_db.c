@@ -109,7 +109,7 @@ struct App unlock_db(char* path) {
     while (true) {
         int s = update_unlock(&u);
         if (s == 1) {
-            if (open_db(&app, path, u.password)) {
+            if (open_db(&app, u.password)) {
                 u.error = "Wrong password";
             } else {
                 erase();
