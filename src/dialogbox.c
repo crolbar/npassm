@@ -81,6 +81,11 @@ void start_confirm(struct Panes* panes, struct DialogBox* db, char op) {
     db->is_editing = false;
     db->op = op;
 
+    if (db->risized) {
+        db->risized = false;
+        init_dialogbox_windows(db);
+    }
+
     panes->prev_active = panes->active;
     panes->active = PaneDialogBox;
 }
