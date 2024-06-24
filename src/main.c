@@ -175,7 +175,10 @@ char* handle_args(int argc, char** argv) {
             printf(
                 "npassm, a ncurses tui password manager!\n\n"
                 "Usage: npassm <PATH>\n\n"
-                "Provide a path to a db file created by npassm,\n or a non existent file and it will create a db file.\n"
+                "Provide a path to a db file created by npassm,\n or a non existent file and it will create a db file.\nIf a path was not provided `$HOME/db.npassdb` will be used.\n\n"
+                "Options:\n"
+                "-h, --help              Print this help message\n"
+                "-i, --import <PATH>     Import entries form a keepassxc csv. Cannot import to an existing npassm db.\n"
             );
             exit(0);
         }
