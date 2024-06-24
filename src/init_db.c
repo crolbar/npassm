@@ -178,11 +178,14 @@ void init_loop(struct Init i, struct App* app) {
     }
 }
 
-struct App create_db(char* path) {
+struct App create_db(char* path, char* import_path) {
     struct Init i = init_init(path, true);
     struct App app = init_app(path);
 
     init_loop(i, &app);
+    if (import_path != NULL) {
+        import_keepass_csv(&app, import_path);
+    }
 
     return app;
 }

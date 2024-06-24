@@ -455,3 +455,155 @@ bool is_npassdb(char* path) {
 
     return true;
 }
+
+
+// `d->f_conts[d->i]` has to be the opening quote.
+// when it returns the string, `d->f_conts[d->i]` will be the closing quote
+char* csv_de_str(struct Deserializer* d, bool skip) {
+    int start = ++d->i;
+
+    int num_q = 0;
+    while (d->f_size) {
+        if (d->f_conts[d->i] == '"') {
+            if (d->f_conts[d->i + 1] != '"') {
+                break;
+            } else {
+                num_q++;
+                d->i++;
+            }
+        }
+        d->i++;
+    }
+
+    if (skip) {
+        return NULL;
+    }
+
+    int len = (d->i - start) - num_q;
+    char* str = malloc(len + 1);
+
+    int skipped_quotes = 0;
+    for (int i = 0; i < len; i++) {
+        if (d->f_conts[i + start + skipped_quotes] == '"' && d->f_conts[i + start + skipped_quotes - 1] == '"') {
+            skipped_quotes++;
+        }
+        str[i] = d->f_conts[i + start + skipped_quotes];
+    }
+    str[len] = '\0';
+
+    return str;
+}
+
+// "Group","Title","Username","Password","URL","Notes","TOTP","Icon","Last Modified","Created"
+void csv_de_entry(struct Deserializer* d) {
+    char* group_name = csv_de_str(d, 0);
+    // skit the closing quote and comma
+    d->i += 2;
+
+    char* entry_name = csv_de_str(d, 0);
+    d->i += 2;
+
+    char* entry_username = csv_de_str(d, 0);
+    d->i += 2;
+
+    char* entry_password = csv_de_str(d, 0);
+    d->i += 2;
+    
+    { // skip URL
+        void* v = csv_de_str(d, 1);
+        d->i += 2;
+    }
+
+    char* entry_notes = csv_de_str(d, 0);
+    d->i += 2;
+
+    // skip till new line (next entry)
+    for (int i = 1; i <= 4; i++) {
+        void* v = csv_de_str(d, 1);
+        if (i != 4) {
+            d->i += 2;
+        }
+    }
+
+
+    struct GroupPane* gp = &d->app->group_pane;
+
+    // append group
+    if (!gp->num_groups || strcmp(gp->groups[gp->num_groups - 1].name, group_name)) {
+        gp->num_groups++;
+
+        gp->groups = realloc(gp->groups, gp->num_groups * sizeof(struct Group));
+
+        struct Group* g = &gp->groups[gp->num_groups - 1];
+
+        *g = (struct Group){
+            .sel_entry = 0,
+            .num_entries = 0,
+            .entries = malloc(sizeof(struct Entry)),
+            .name = group_name,
+        };
+    }
+
+    { // append entry
+        struct Group* g = &gp->groups[gp->num_groups - 1];
+        g->num_entries++;
+
+        g->entries = realloc(g->entries, g->num_entries * sizeof(struct Entry));
+
+        g->entries[g->num_entries - 1] = (struct Entry){
+            .sel_field = 0,
+            .name = entry_name,
+            .username = entry_username,
+            .email = malloc(1),
+            .password = entry_password,
+            .notes = entry_notes,
+        };
+
+        g->entries[g->num_entries - 1].email[0] = '\0';
+    }
+}
+
+void import_keepass_csv(struct App* app, char* import_path) {
+    struct Deserializer d = { .app = app };
+
+    FILE* f = fopen(import_path, "r");
+
+    fseek(f, 0, SEEK_END);
+    d.f_size = ftell(f);
+    rewind(f);
+
+
+    d.f_conts = malloc((d.f_size + 1) * sizeof(char));
+
+    if (fread(d.f_conts, sizeof(char), d.f_size, f) != d.f_size) {
+        endwin();
+        printf("Error occured while reading import file.\n");
+        exit(1);
+    };
+
+    const char csv_keepass_first_line[] = "\"Group\",\"Title\",\"Username\",\"Password\",\"URL\",\"Notes\",\"TOTP\",\"Icon\",\"Last Modified\",\"Created\"";
+    char* first_line_buf = malloc(strlen(csv_keepass_first_line) + 1);
+
+    for (d.i = 0; d.i < d.f_size - 1; d.i++) {
+        if (!strcmp((char*)csv_keepass_first_line, first_line_buf)) {
+            if (d.f_conts[d.i] == '\n' && d.f_conts[d.i + 1] == '"') {
+                d.i++;
+                csv_de_entry(&d);
+            }
+       } else {
+            if (d.f_conts[d.i] == '\n') {
+                if (strcmp(csv_keepass_first_line, first_line_buf)) {
+                    endwin();
+                    printf("The csv file that you provided doesn't seem generated from keepassxc.\n");
+                    exit(1);
+                }
+            }
+            first_line_buf[d.i] = d.f_conts[d.i];
+        }
+    }
+
+    d.app->group_pane.sel = 0;
+
+    free(first_line_buf);
+    fclose(f);
+}

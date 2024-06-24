@@ -49,6 +49,7 @@ void save_db(const struct App* app);
 bool open_db(struct App* app, char* password);
 bool is_npassdb(char* path);
 struct App init_app(char* path);
+void import_keepass_csv(struct App* app, char* import_path);
 
 void edit_db(struct App* app);
 

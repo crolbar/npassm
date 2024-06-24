@@ -167,6 +167,8 @@ void cleanup(struct App* app) {
 }
 
 char* handle_args(int argc, char** argv) {
+    char* import_path = NULL;
+
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
             endwin();
@@ -177,11 +179,24 @@ char* handle_args(int argc, char** argv) {
             );
             exit(0);
         }
+
+        if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--import")) {
+            if (i + 1 != argc) {
+                import_path = argv[i + 1];
+            }
+        }
     }
 
-    char* path;
+    char* path = NULL;
 
-    if (argc == 1) {
+    if (
+            argc == 1 || 
+            (
+                !strcmp(argv[argc - 2],  "-i") ||
+                !strcmp(argv[argc - 2], "--import")
+            )
+       ) 
+    {
         char* name = "db.npassdb";
         char* home = getenv("HOME");
         int size = strlen(name) + strlen(home) + 2;
@@ -189,47 +204,74 @@ char* handle_args(int argc, char** argv) {
         sprintf(path, "%s/%s", home, name);
         path[size] = '\0';
     } else {
-        path = malloc(strlen(argv[1]) + 1);
-        strcpy(path, argv[1]);
-        path[strlen(argv[1])] = '\0';
+        path = malloc(strlen(argv[argc - 1]) + 1);
+        strcpy(path, argv[argc - 1]);
+        path[strlen(argv[argc - 1])] = '\0';
     }
 
     char* parent_path = dirname(strdup(path));
 
-    struct stat statbuf;
-    struct stat p_statbuf;
 
+    struct stat statbuf;
     // path exists
     bool exists = !stat(path, &statbuf);
-
-    // path is not dir
-    if (S_ISDIR(statbuf.st_mode)) {
-        endwin();
-        printf("Path is a directory.\n");
-        exit(0);
-    }
-    
-    // parent exists
-    if (stat(parent_path, &p_statbuf) != 0) {
-        endwin();
-        printf("Invalid path.\n");
-        exit(0);
+    {
+        // path is not dir
+        if (S_ISDIR(statbuf.st_mode)) {
+            endwin();
+            printf("Path is a directory.\n");
+            exit(0);
+        }
     }
 
-    // parent is dir
-    if (!S_ISDIR(p_statbuf.st_mode)) {
-        endwin();
-        printf("Invalid path. Parent is not an directory.\n");
-        exit(0);
+    if (import_path) {
+        struct stat i_statbuf;
+        // import_path exists
+        if (stat(import_path, &i_statbuf)) {
+            endwin();
+            printf("Import doestn't exist.\n");
+            exit(0);
+        }
+
+        // import_path is not dir
+        if (S_ISDIR(i_statbuf.st_mode)) {
+            endwin();
+            printf("Import path is a directory.\n");
+            exit(0);
+        }
+    }
+
+
+    {
+        struct stat p_statbuf;
+        // parent exists
+        if (stat(parent_path, &p_statbuf) != 0) {
+            endwin();
+            printf("Invalid path.\n");
+            exit(0);
+        }
+
+        // parent is dir
+        if (!S_ISDIR(p_statbuf.st_mode)) {
+            endwin();
+            printf("Invalid path. Parent is not an directory.\n");
+            exit(0);
+        }
     }
 
     free(parent_path);
 
     if (!exists) {
-        struct App a = create_db(path);
+        struct App a = create_db(path, import_path);
         save_db(&a);
     } else {
         is_npassdb(path);
+
+        if (import_path != NULL)  {
+            endwin();
+            printf("If you want to import, provide a non existent file and it will create a db file with the entries from the keepassxc csv export.\n");
+            exit(0);
+        }
     }
 
     return path;
