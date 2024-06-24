@@ -115,6 +115,7 @@ struct App unlock_db(char* path) {
                 erase();
                 refresh();
                 curs_set(0);
+                free(u.title);
                 app.password = u.password;
 
                 return app;

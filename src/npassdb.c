@@ -19,6 +19,7 @@ char* ser_str(char* str) {
             }
         }
 
+        free(ser_string);
         ser_string = malloc(size + 3);
 
         int num_q = 0;
@@ -75,7 +76,13 @@ char* ser_entries(struct Entry* entries, int num_entries) {
         size += e_size;
         ser_entries = realloc(ser_entries, size);
         strcat(ser_entries, ser_e);
+
         free(ser_e);
+        free(ser_name);
+        free(ser_username);
+        free(ser_email);
+        free(ser_password);
+        free(ser_notes);
     }
 
     return ser_entries;
@@ -110,6 +117,7 @@ char* ser_groups(struct Group* groups, int num_groups) {
         strcat(ser_groups, ser_g);
 
         free(entries);
+        free(ser_name);
         free(ser_g);
     }
 
@@ -142,13 +150,17 @@ void save_db(const struct App* app) {
 
         fwrite(&ser_db_size, sizeof(ser_db_size), 1, f);
         fwrite(cipher, 1, ser_db_size, f);
+
+        free(cipher);
     } else {
         fwrite("npassdb", 7, 1, f);
         fwrite(ser_db, strlen(ser_db), 1, f);
     }
 
 
+    free(ser_db);
     free(groups);
+    free(ser_dbname);
 
     fclose(f);
 }
@@ -386,7 +398,10 @@ bool open_db(struct App* app, char* password) {
     if (!strcmp((char*)form, "epassdb")) {
         char* ser_db = decrypt_db(f, (int*)&d.f_size, password);
 
+        free(d.f_conts);
+
         if (ser_db == NULL) {
+            free(ser_db);
             return true;
         }
 
@@ -394,6 +409,7 @@ bool open_db(struct App* app, char* password) {
 
         strcpy(d.f_conts, ser_db);
 
+        free(ser_db);
     } else if (!strcmp((char*)form, "npassdb")) {
         if (fread(d.f_conts, sizeof(char), d.f_size - 7, f) != d.f_size - 7) {
             printf("Error occured while reading db file.\n");

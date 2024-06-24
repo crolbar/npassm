@@ -49,6 +49,17 @@ bool render_groups(struct App *app) {
 
 void group_remove(struct GroupPane* gp) {
     if (gp->num_groups) {
+        struct Group* g = &gp->groups[gp->sel];
+        free(g->name);
+        for (int i = 0; i <g->num_entries; i++) {
+            free(g->entries[i].name);
+            free(g->entries[i].username);
+            free(g->entries[i].email);
+            free(g->entries[i].password);
+            free(g->entries[i].notes);
+        }
+        free(g->entries);
+
         for (int i = gp->sel; i < gp->num_groups; i++) {
             gp->groups[i] = gp->groups[i + 1];
         }

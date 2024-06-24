@@ -112,6 +112,7 @@ void stop_confirm(struct App* app, bool cancel) {
         }
     }
 
+    free(app->dialogbox.title);
     werase(app->dialogbox.win);
     wnoutrefresh(app->dialogbox.win);
 }
@@ -354,6 +355,7 @@ void stop_editing(struct App* app, bool save) {
     if (save) {
         int l = strlen(app->dialogbox.mod_str);
 
+        free(*app->dialogbox.origin_str);
         *app->dialogbox.origin_str = (char*)malloc(++l * sizeof(char));
 
         strcpy(*app->dialogbox.origin_str, app->dialogbox.mod_str);
@@ -373,6 +375,8 @@ void stop_editing(struct App* app, bool save) {
     free(app->dialogbox.mod_str);
     app->dialogbox.mod_str = NULL;
     app->dialogbox.origin_str = NULL;
+
+    free(app->dialogbox.title);
 
     werase(app->dialogbox.win);
     wnoutrefresh(app->dialogbox.win);

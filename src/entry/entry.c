@@ -85,6 +85,13 @@ bool render_entry_pane(
 
 void entry_remove(struct EntryPane* ep, struct Group* g) {
     if (g->num_entries) {
+        struct Entry* e = &g->entries[g->sel_entry];
+        free(e->name);
+        free(e->username);
+        free(e->email);
+        free(e->password);
+        free(e->notes);
+
         for (int i = g->sel_entry; i < g->num_entries; i++) {
             g->entries[i] = g->entries[i + 1];
         }
@@ -109,14 +116,20 @@ void entry_add(struct EntryPane* ep, struct Group* g) {
     g->entries = realloc(g->entries, (g->num_entries + 1) * sizeof(struct Entry));
 
     g->entries[g->num_entries] = (struct Entry){
-        .email = "",
-        .password = "",
-        .notes = "",
-        .username = "",
         .name = malloc(20 * sizeof(char)),
+        .username = malloc(1),
+        .email = malloc(1),
+        .password = malloc(1),
+        .notes = malloc(1),
     };
 
     sprintf(g->entries[g->num_entries].name, "New Entry %d", g->num_entries);
+    g->entries[g->num_entries].name[13] = '\0';
+
+    g->entries[g->num_entries].username[0] = '\0';
+    g->entries[g->num_entries].email[0] = '\0';
+    g->entries[g->num_entries].password[0] = '\0';
+    g->entries[g->num_entries].notes[0] = '\0';
 
     g->num_entries++;
 

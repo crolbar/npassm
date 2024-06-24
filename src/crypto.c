@@ -98,6 +98,8 @@ char* decrypt_db(FILE* f, int* len, char* password) {
         if (EVP_DecryptFinal_ex(ctx,
                 ser_db+u_len, &f_len) != 1)
         {
+            free(cipher);
+            free(ser_db);
             return NULL;
         }
 
@@ -106,5 +108,6 @@ char* decrypt_db(FILE* f, int* len, char* password) {
 
     *len = u_len + f_len;
 
+    free(cipher);
     return (char*)ser_db;
 }

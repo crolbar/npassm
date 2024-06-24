@@ -145,6 +145,27 @@ void init_windows(struct App* app) {
     refresh();
 }
 
+void cleanup(struct App* app) {
+    for (int i = 0; i < app->group_pane.num_groups; i++) {
+        struct Group* g = &app->group_pane.groups[i];
+        for (int j = 0; i < g->num_entries; i++) {
+            struct Entry* e = &g->entries[i];
+            free(e->name);
+            free(e->username);
+            free(e->email);
+            free(e->password);
+            free(e->notes);
+        }
+
+        free(g->entries);
+        free(g->name);
+    }
+    free(app->group_pane.groups);
+    free(app->password);
+    free(app->dbname);
+    free(app->dbpath);
+}
+
 char* handle_args(int argc, char** argv) {
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
@@ -168,7 +189,9 @@ char* handle_args(int argc, char** argv) {
         sprintf(path, "%s/%s", home, name);
         path[size] = '\0';
     } else {
-        path = argv[1];
+        path = malloc(strlen(argv[1]) + 1);
+        strcpy(path, argv[1]);
+        path[strlen(argv[1])] = '\0';
     }
 
     char* parent_path = dirname(strdup(path));
@@ -200,6 +223,7 @@ char* handle_args(int argc, char** argv) {
         exit(0);
     }
 
+    free(parent_path);
 
     if (!exists) {
         struct App a = create_db(path);
@@ -233,6 +257,7 @@ int main(int argc, char** argv) {
         draw(&app);
     } while (!app.exit);
 
+    cleanup(&app);
     endwin();
     return 0;
 }

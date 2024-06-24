@@ -14,6 +14,7 @@ void up_str_pop(WINDOW* win, char** mod_str, bool word) {
                     break;
                 } 
             }
+            free(str);
         } else {
             l--; 
         }
