@@ -266,18 +266,16 @@ void set_dialogbox_title(struct App* app, char c) {
         default: break;
     }
 
-    char tmp[300];
-    sprintf(tmp, "%s %s", action, sub);
+    int len = strlen(action) + strlen(sub) + 6;
+    app->dialogbox.title = (char*)malloc((len + 1) * sizeof(char));
+    sprintf(app->dialogbox.title, "%s %s", action, sub);
 
     int window_width = getmaxx(app->dialogbox.win);
-    if (strlen(tmp) > window_width - 2) {
-        tmp[window_width - 7] = '.';
-        tmp[window_width - 6] = '.';
-        tmp[window_width - 5] = '\0';
+    if (strlen(app->dialogbox.title) > window_width - 2) {
+        app->dialogbox.title[window_width - 7] = '.';
+        app->dialogbox.title[window_width - 6] = '.';
+        app->dialogbox.title[window_width - 5] = '\0';
     }
-
-    app->dialogbox.title = (char*)malloc((strlen(tmp) + 1) * sizeof(char));
-    strcpy(app->dialogbox.title, tmp);
 }
 
 void start_editing(struct Panes* panes, struct DialogBox* db, char** origin) {
