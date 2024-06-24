@@ -228,6 +228,8 @@ char* handle_args(int argc, char** argv) {
     if (!exists) {
         struct App a = create_db(path);
         save_db(&a);
+    } else {
+        is_npassdb(path);
     }
 
     return path;

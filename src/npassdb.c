@@ -439,7 +439,7 @@ bool open_db(struct App* app, char* password) {
     return false;
 }
 
-bool is_encrypted(char* path) {
+bool is_npassdb(char* path) {
     FILE* f = fopen(path, "r");
 
     char* form[7];
@@ -447,5 +447,11 @@ bool is_encrypted(char* path) {
 
     fclose(f);
 
-    return strstr((char*)form, "epassdb");
+    if (strcmp((char*)form, "epassdb") && strcmp((char*)form, "npassdb")) {
+        endwin();
+        printf("Wrong file format.\n");
+        exit(0);
+    }
+
+    return true;
 }
