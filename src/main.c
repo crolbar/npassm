@@ -15,6 +15,7 @@
 #include "unlock_db.c"
 #include "input.c"
 #include "init_db.c"
+#include "bars.c"
 
 void init_dialogbox_windows(struct DialogBox* db) {
     const int DIALOGBOX_WIN_HEIGHT = LINES * 0.25;
@@ -67,22 +68,20 @@ void init_dialogbox_windows(struct DialogBox* db) {
 }
 
 void init_windows(struct App* app) {
-    erase();
-
-    const int GROUP_WIN_HEIGHT = LINES;
+    const int GROUP_WIN_HEIGHT = LINES - 2;
     const int GROUP_WIN_WIDTH = COLS * 0.15;
-    const int GROUP_WIN_START_Y = 0;
+    const int GROUP_WIN_START_Y = 1;
     const int GROUP_WIN_START_X = 0;
 
 
-    const int ENTRY_WIN_HEIGHT = LINES;
+    const int ENTRY_WIN_HEIGHT = LINES - 2;
     const int ENTRY_WIN_WIDTH = COLS * 0.35;
-    const int ENTRY_WIN_START_Y = 0;
+    const int ENTRY_WIN_START_Y = 1;
     const int ENTRY_WIN_START_X = GROUP_WIN_WIDTH;
 
-    const int INFO_WIN_HEIGHT = LINES;
+    const int INFO_WIN_HEIGHT = LINES - 2;
     const int INFO_WIN_WIDTH = COLS * 0.49;
-    const int INFO_WIN_START_Y = 0;
+    const int INFO_WIN_START_Y = 1;
     const int INFO_WIN_START_X = COLS * 0.51;
 
     app->group_pane.win = newwin(
@@ -142,7 +141,10 @@ void init_windows(struct App* app) {
             PASSGEN_WIN_START_X + 6
     );
 
-    refresh();
+
+    app->top_bar_win = newwin(1, COLS, 0, 0);
+    app->btm_bar_win = newwin(1, COLS, LINES - 1, 0);
+
 }
 
 void cleanup(struct App* app) {
@@ -164,6 +166,7 @@ void cleanup(struct App* app) {
     free(app->password);
     free(app->dbname);
     free(app->dbpath);
+    free(app->top_bar_info);
 }
 
 char* handle_args(int argc, char** argv) {

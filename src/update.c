@@ -13,8 +13,8 @@ void handle_pane_focus_change(struct App* app, bool left) {
         {
             app->panes.active = PaneEntry;
 
-            app->group_pane.win = newwin(LINES, COLS * 0.10, 0, 0);
-            app->entry_pane.win = newwin(LINES, COLS * 0.40, 0, COLS * 0.10);
+            app->group_pane.win = newwin(LINES - 2, COLS * 0.10, 1, 0);
+            app->entry_pane.win = newwin(LINES - 2, COLS * 0.40, 1, COLS * 0.10);
 
         } else if 
             (
@@ -29,8 +29,8 @@ void handle_pane_focus_change(struct App* app, bool left) {
         {
             app->panes.active = PaneGroup;
 
-            app->group_pane.win = newwin(LINES, COLS * 0.15, 0, 0);
-            app->entry_pane.win = newwin(LINES, COLS * 0.35, 0, COLS * 0.15);
+            app->group_pane.win = newwin(LINES - 2, COLS * 0.15, 1, 0);
+            app->entry_pane.win = newwin(LINES - 2, COLS * 0.35, 1, COLS * 0.15);
 
         } else if (app->panes.active == PaneEntryFields) 
         {
@@ -97,6 +97,14 @@ void copy(const char *text) {
 void update(struct App* app) {
     int c = getch();
 
+    if (c != -1) {
+        free(app->top_bar_info);
+        app->top_bar_info = malloc(1);
+        app->top_bar_info[0] = '\0';
+        werase(app->top_bar_win);
+        wnoutrefresh(app->top_bar_win);
+    }
+
     if (app->panes.active == PaneGroup || app->panes.active == PaneEntry || app->panes.active == PaneEntryFields) {
         switch (c) {
 
@@ -141,13 +149,13 @@ void update(struct App* app) {
                 handle_pane_focus_change(app, false);
                 break;
 
-            case 'g':
-                start_passgen(app);
-                break;
-
             case KEY_LEFT:
             case 'h':
                 handle_pane_focus_change(app, true);
+                break;
+
+            case 'g':
+                start_passgen(app);
                 break;
 
             case 'q':
@@ -155,6 +163,7 @@ void update(struct App* app) {
 
             case 's':
                 save_db(app);
+                set_info_msg(app, c);
                 break;
 
             case '$':
@@ -170,6 +179,7 @@ void update(struct App* app) {
 
             case 'p':
                 app->entry_pane.pass_hiden = !app->entry_pane.pass_hiden;
+                set_info_msg(app, c);
 
                 werase(app->entry_pane.info_win);
                 wnoutrefresh(app->entry_pane.info_win);
@@ -177,6 +187,7 @@ void update(struct App* app) {
 
             case 'c':
                 copy(*get_focused_item(app));
+                set_info_msg(app, c);
                 break;
 
             case 'a':
@@ -277,13 +288,13 @@ void update(struct App* app) {
                 if (app->passgen.slider > 1) app->passgen.slider -= 1;
                 break;
 
-            case 'c':
-                copy(app->passgen.genpassword);
-                break;
-
             case 'l':
             case KEY_RIGHT:
                 if (app->passgen.slider < 16) app->passgen.slider += 1;
+                break;
+
+            case 'c':
+                copy(app->passgen.genpassword);
                 break;
 
             case 10:
@@ -302,6 +313,10 @@ void update(struct App* app) {
 
     }
 
-    if (c == KEY_RESIZE) init_windows(app);
+    if (c == KEY_RESIZE) {
+        init_windows(app);
+        erase();
+        refresh();
+    }
     if (c == 3) app->exit = true;
 }

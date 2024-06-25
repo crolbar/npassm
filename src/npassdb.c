@@ -349,6 +349,7 @@ struct App init_app(char* path) {
         .exit = false,
         .dbpath = path,
         .dbname = NULL,
+        .top_bar_info = malloc(1),
         .panes = {
             .active = 0,
         },

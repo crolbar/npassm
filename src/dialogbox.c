@@ -98,8 +98,12 @@ void stop_confirm(struct App* app, bool cancel) {
             case 'd':
                 {
                     if (app->panes.active == PaneEntry) {
+                        set_info_msg(app, app->dialogbox.op);
+
                         entry_remove(&app->entry_pane, &app->group_pane.groups[app->group_pane.sel]);
                     } else if (app->panes.active == PaneGroup) {
+                        set_info_msg(app, app->dialogbox.op);
+
                         group_remove(&app->group_pane);
 
                         werase(app->entry_pane.win);

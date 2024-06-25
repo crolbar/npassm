@@ -27,6 +27,10 @@ struct App {
     char* password;
     char* dbpath;
 
+    char* top_bar_info;
+    WINDOW* top_bar_win;
+    WINDOW* btm_bar_win;
+
     struct Panes panes;
     struct DialogBox dialogbox;
     struct GroupPane group_pane;
@@ -42,6 +46,8 @@ bool render_entry_pane(
 
 bool render_passgen(const struct App* app);
 
+bool render_bars(struct App* app);
+
 void init_windows(struct App* app);
 void init_dialogbox_windows(struct DialogBox* db);
 
@@ -55,5 +61,7 @@ void edit_db(struct App* app);
 
 void up_str_pop(WINDOW* win, char** mod_str, bool word);
 void up_str_push(WINDOW* win, char** mod_str, char c);
+
+void set_info_msg(struct App* app, char c);
 
 #endif
