@@ -443,8 +443,9 @@ bool open_db(struct App* app, char* password) {
 bool is_npassdb(char* path) {
     FILE* f = fopen(path, "r");
 
-    char* form[7];
+    char form[8];
     if (fread(form, 7, 1, f)) {};
+    form[7] = '\0';
 
     fclose(f);
 
