@@ -1,5 +1,6 @@
-# STILL WORK IN PROGRESS
-## Something trying to be a TUI ncurses password manager.
+# Something trying to be a TUI ncurses password manager.
+
+- if you do wish to use npassm with your passwords know that it's absolutely possible to lose them (this is a fun little project not an finished product)
 
 # Build
 ```
