@@ -10,10 +10,7 @@
         pkgs = import nixpkgs {
           inherit system;
         };
-      in with pkgs;
-      {
-        devShells.default = mkShell {
-          buildInputs = [
+          buildInputs = with pkgs; [
             pkg-config
             gnumake
             cmake
@@ -21,7 +18,10 @@
             openssl
             ncurses
           ];
-        };
+      in
+      {
+        devShells.default = pkgs.mkShell { inherit buildInputs; };
+        defaultPackage = pkgs.callPackage ./default.nix {};
       }
     );
 }
