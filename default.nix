@@ -26,9 +26,4 @@ stdenv.mkDerivation {
         fileset = fs.difference ./. (fs.maybeMissing ./build);
     };
     inherit buildInputs;
-
-    installPhase = ''
-        mkdir -p $out/bin
-        cp npassm $out/bin
-    '';
 }

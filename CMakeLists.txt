@@ -12,3 +12,5 @@ include_directories(${CURSES_INCLUDE_DIR})
 target_link_libraries(${Name} m)
 target_link_libraries(${Name} ${CURSES_LIBRARIES})
 target_link_libraries(${Name} OpenSSL::Crypto)
+
+install(TARGETS ${Name})
