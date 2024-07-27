@@ -186,9 +186,12 @@ void update(struct App* app) {
                 break;
 
             case 'c':
-                copy(*get_focused_item(app));
-                set_info_msg(app, c);
-                break;
+                {
+                    char** s = get_focused_item(app);
+                    if (s) 
+                        copy(*s);
+                    set_info_msg(app, c);
+                } break;
 
             case 'a':
                 if (app->panes.active == PaneEntry) {
