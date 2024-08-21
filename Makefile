@@ -1,3 +1,5 @@
+.PHONY: build run
+
 build:
 	cmake --build ./build --config Release
 

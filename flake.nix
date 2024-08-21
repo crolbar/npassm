@@ -28,7 +28,7 @@
       in
         with pkgs; {
           default = mkShell {
-            inherit nativeBuildInputs;
+            packages = nativeBuildInputs;
           };
         }
     );
